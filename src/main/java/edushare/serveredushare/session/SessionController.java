@@ -44,6 +44,7 @@ public class SessionController {
 
 		if (auth) {
 			session.setAttribute("username", username);
+			//TODO: setAttribute dei permessi (ruolo) dell'utente
 			return ResponseEntity.ok(new SessionData(username, "Log in successful."));
 		}
 		return ResponseEntity.status(401).body(

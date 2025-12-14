@@ -1,4 +1,4 @@
-package edushare.serveredushare.filter;
+package edushare.serveredushare.filters;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,32 +13,33 @@ import java.io.IOException;
 @Component
 @Order(1)
 public class LoginFilter implements Filter {
+	private final SecurityPathConfig securityPathConfig;
+
+	// Spring inietta automaticamente il componente qui
+	public LoginFilter(SecurityPathConfig securityPathConfig) {
+		this.securityPathConfig = securityPathConfig;
+	}
+
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse res = (HttpServletResponse) servletResponse;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		HttpSession session = request.getSession();
 		String user = (String) session.getAttribute("username");
 
-		// Le preflight requests passano sempre (per permettere il cross origin)
-		if (request.getMethod().equals("OPTIONS")) {
+		// Se l'utente non è autenticato, ma la route è pubblica, mando comunque avanti la richiesta
+		if (securityPathConfig.isPublic(request.getServletPath())) {
 			filterChain.doFilter(servletRequest, servletResponse);
 			return;
 		}
 
-		// Se l'utente è autenticato, mando avanti la richiesta
+		// Se l'utente è autenticato in questa sessione, mando avanti la richiesta
 		if (user != null) {
 			filterChain.doFilter(servletRequest, servletResponse);
 			return;
 		}
 
-		// Se l'utente non è autenticato, ma sta tentando di autenticarsi, mando avanti la richiesta
-		String pathname = request.getServletPath();
-		if (pathname.startsWith("/session")) {
-			filterChain.doFilter(servletRequest, servletResponse);
-			return;
-		}
-
-		res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		// Errore: utente non riconosciuto (non loggato)
+		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 }

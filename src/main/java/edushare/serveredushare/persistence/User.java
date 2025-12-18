@@ -1,8 +1,9 @@
 package edushare.serveredushare.persistence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
 
 /// Entità User con informazioni del profilo utente
 @Entity
@@ -38,13 +39,28 @@ public class User {
 
 	@Column(name = "ruolo", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Role ruolo;
+	private Set<Role> ruoli;
+
+	@Column(name = "immagineProfilo")
+	private String immagineProfilo;
+
+	@Column(name = "credito")
+	private double credito;
+
+	 @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)    // Cascade perché TeacherProfile è subordinato a User
+	 private TeacherProfile teacherProfile;
+
+	 @ManyToMany
+	 @JoinTable(name = "utenti_corsiSeguiti")
+	 private List<Course> corsiSeguiti;
 
 	public User(){
 		lingueParlate = new HashSet<>();    // Init per evitare NullPointerException
+		corsiSeguiti = new LinkedList<>();
 	}
 
-	public User(String username, String password, String nome, String cognome, String email, int eta, String nazionalita, Set<String> lingueParlate, Role ruolo) {
+	public User(String username, String password, String nome, String cognome, String email, int eta,
+	            String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, String img, double credito){
 		this.username = username;
 		this.password = password;
 		this.nome = nome;
@@ -53,13 +69,16 @@ public class User {
 		this.eta = eta;
 		this.nazionalita = nazionalita;
 		this.lingueParlate = new HashSet<>(lingueParlate);
-		this.ruolo = ruolo;
+		this.ruoli = new HashSet<>(ruoli);
+		this.immagineProfilo = img == null ? "defaultUsr.png" : img;
+		this.credito = credito;
 	}
 
 	public String getUsername() {
 		return username;
 	}
 
+	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
@@ -72,9 +91,7 @@ public class User {
 		return cognome;
 	}
 
-	public String getEmail() {
-		return email;
-	}
+	public String getEmail() {return email;}
 
 	public int getEta() {
 		return eta;
@@ -88,7 +105,34 @@ public class User {
 		return lingueParlate;
 	}
 
-	public Role getRole() {
-		return ruolo;
+	public Set<Role> getRuoli() {
+		return ruoli;
+	}
+
+	public String getImmagineProfilo() {
+		return immagineProfilo;
+	}
+
+	public double getCredito() {
+		return credito;
+	}
+
+	public TeacherProfile getTeacherProfile(){
+		return teacherProfile;
+	}
+
+	public void setTeacherProfile(TeacherProfile teacherProfile) throws IllegalStateException{
+		if(ruoli.contains(Role.TEACHER))
+			this.teacherProfile = teacherProfile;
+		else
+			throw new IllegalStateException("L'utente " + this.username + " non ha il ruolo TEACHER.");
+	}
+
+	public List<Course> getCorsiSeguiti() {
+		return corsiSeguiti;
+	}
+
+	public void addToCorsiSeguiti(Course course){
+		this.corsiSeguiti.add(course);
 	}
 }

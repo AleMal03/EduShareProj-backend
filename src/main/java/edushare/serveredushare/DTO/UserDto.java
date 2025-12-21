@@ -14,8 +14,12 @@ public class UserDto implements Serializable {
 	private Set<String> lingueParlate;
 	private Set<Role> ruoli;
 	private TeacherProfileDto teacherProfileDto;
+	private double credito;
+	private String fotoProfilo;
 
-	public UserDto(String username, String email, String nome, String cognome, int eta, String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, TeacherProfileDto teacherProfileDto) {
+	public UserDto(String username, String email, String nome, String cognome, int eta, String nazionalita,
+	               Set<String> lingueParlate, Set<Role> ruoli, double credito, String fotoProfilo,
+	               TeacherProfileDto teacherProfileDto) {
 		this.username = username;
 		this.email = email;
 		this.nome = nome;
@@ -25,6 +29,8 @@ public class UserDto implements Serializable {
 		this.lingueParlate = lingueParlate;
 		this.ruoli = ruoli;
 		this.teacherProfileDto = teacherProfileDto;
+		this.credito = credito;
+		this.fotoProfilo = fotoProfilo;
 	}
 
 	public String getUsername() {
@@ -61,5 +67,13 @@ public class UserDto implements Serializable {
 
 	public TeacherProfileDto getTeacherProfileDto() {
 		return teacherProfileDto;
+	}
+
+	public double getCredito() {
+		return credito;
+	}
+
+	public String getFotoProfilo() {
+		return fotoProfilo;
 	}
 }

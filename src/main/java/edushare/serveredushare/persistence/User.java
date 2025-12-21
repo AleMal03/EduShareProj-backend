@@ -38,7 +38,7 @@ public class User {
 	private Set<String> lingueParlate;
 
 	@Column(name = "ruolo", nullable = false)
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING)    // Serve a trattare il valore dell'enum come stringa invece che come int
 	private Set<Role> ruoli;
 
 	@Column(name = "immagineProfilo")

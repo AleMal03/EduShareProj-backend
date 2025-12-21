@@ -27,6 +27,7 @@ public class Course {
 	private double prezzo;
 
 	@Column(name = "difficolta")
+	@Enumerated(EnumType.STRING)    // Serve a trattare il valore dell'enum come stringa invece che come int
 	private Difficolta difficolta;
 
 	@Column(name = "icona")

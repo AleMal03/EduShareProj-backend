@@ -43,8 +43,7 @@ public class SessionController {
 			session.setAttribute("user", currentUser);
 			return ResponseEntity.ok(new SessionData(currentUser, "Log in successful."));
 		}
-		return ResponseEntity.status(401).body(
-				new SessionData(null, "Credenziali non valide."));
+		return ResponseEntity.status(401).body(new SessionData(null, "Credenziali non valide."));
 	}
 
 	@GetMapping("/logout")

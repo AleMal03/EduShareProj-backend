@@ -4,10 +4,10 @@ import edushare.serveredushare.DTO.UserDto;
 
 /// Struttura di supporto per response da mandare al client
 public class SessionData {
-	private UserDto user;    // Username
+	private UserDto user;       // UserDTO per il frontend
 	private String message;     // Messaggio di risposta
 
-	SessionData(UserDto user, String retrievedValue) {
+	public SessionData(UserDto user, String retrievedValue) {
 		this.user = user;
 		this.message = retrievedValue;
 	}

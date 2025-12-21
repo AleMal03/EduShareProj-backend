@@ -1,5 +1,7 @@
 package edushare.serveredushare.filters;
 
+import edushare.serveredushare.DTO.UserDto;
+import edushare.serveredushare.persistence.User;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/// Filtro per i permessi in base alla tipologia di utente
+/// Filtro per i permessi in base alla tipologia di utente (blackList)
 @Component
 @Order(2)
 public class PermissionFilter implements Filter {
@@ -25,6 +27,7 @@ public class PermissionFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		HttpSession session = request.getSession();
+		UserDto user = (UserDto) session.getAttribute("user");
 
 		// Se la route è pubblica, mando avanti la richiesta a prescindere
 		if (securityPathConfig.isPublic(request.getServletPath())) {
@@ -32,9 +35,12 @@ public class PermissionFilter implements Filter {
 			return;
 		}
 
-		// TODO: Aggiungere condizioni basate sui permessi dell'utente
+		// Se cerca di modificare dati da insegnante se non è insegnante (blacklisted)
+		if(securityPathConfig.isModifyTeacherFields(request.getServletPath()) && !user.getRuoli().contains(User.Role.TEACHER)) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);   // Errore: l'utente loggato non ha i permessi
+		}
 
-		// Errore: l'utente loggato non ha i permessi
-		response.sendError(HttpServletResponse.SC_FORBIDDEN);
+		// Altrimenti vai avanti
+		filterChain.doFilter(servletRequest, servletResponse);
 	}
 }

@@ -4,15 +4,15 @@ import edushare.serveredushare.DTO.UserDto;
 
 /// Struttura di supporto per response da mandare al client
 public class SessionData {
-	private UserDto cookieId;    // Username
+	private UserDto user;    // Username
 	private String message;     // Messaggio di risposta
 
-	SessionData(UserDto cookieId, String retrievedValue) {
-		this.cookieId = cookieId;
+	SessionData(UserDto user, String retrievedValue) {
+		this.user = user;
 		this.message = retrievedValue;
 	}
 
-	public UserDto getCookieId() {return cookieId;}
+	public UserDto getUser() {return user;}
 
 	public String getMessage() {return message;}
 }

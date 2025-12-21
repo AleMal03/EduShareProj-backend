@@ -1,5 +1,6 @@
 package edushare.serveredushare.filters;
 
+import edushare.serveredushare.DTO.UserDto;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +26,7 @@ public class LoginFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		HttpSession session = request.getSession();
-		String user = (String) session.getAttribute("username");
+		UserDto user = (UserDto) session.getAttribute("user");
 
 		// Se l'utente non è autenticato, ma la route è pubblica, mando comunque avanti la richiesta
 		if (securityPathConfig.isPublic(request.getServletPath())) {

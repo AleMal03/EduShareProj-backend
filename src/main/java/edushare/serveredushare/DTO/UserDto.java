@@ -1,12 +1,12 @@
 package edushare.serveredushare.DTO;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import edushare.serveredushare.persistence.TeacherProfile;
 import edushare.serveredushare.persistence.User;
 import edushare.serveredushare.persistence.User.Role;
-
 
 public class UserDTO implements Serializable {
     private String username;
@@ -19,7 +19,7 @@ public class UserDTO implements Serializable {
     private Set<Role> ruoli;
     private TeacherProfileDTO teacherProfileDTO;
     private double credito;
-	private String fotoProfilo;
+    private String fotoProfilo;
 
     public UserDTO(){}
 
@@ -34,9 +34,8 @@ public class UserDTO implements Serializable {
         this.ruoli = ruoli;
         this.teacherProfileDTO = teacherProfileDto;
         this.credito = credito;
-		this.fotoProfilo = fotoProfilo;
+        this.fotoProfilo = fotoProfilo;
     }
-
 
     // --- GETTERS ---
     public String getUsername() { return username; }
@@ -51,8 +50,6 @@ public class UserDTO implements Serializable {
     public double getCredito() { return credito; }
     public String getFotoProfilo() {return fotoProfilo;}
 
-
-
     // --- MAPPER STATICO ---
     public static UserDTO mapUserToUserDTO(User user){
         TeacherProfileDTO tDTO = null;
@@ -62,18 +59,32 @@ public class UserDTO implements Serializable {
         // Logica per creare il DTO innestato
         if(user.getRuoli().contains(User.Role.TEACHER) && user.getTeacherProfile() != null){
             TeacherProfile teacherProfile = user.getTeacherProfile();
-            // CORREZIONE: Ora possiamo chiamare new TeacherProfileDTO direttamente
-            tDTO = new TeacherProfileDTO(teacherProfile.getAboutMe(), teacherProfile.getTitoliStudio());
+            
+            Set<String> titoliPuliti = new HashSet<>(teacherProfile.getTitoliStudio());
+            
+            tDTO = new TeacherProfileDTO(teacherProfile.getAboutMe(), titoliPuliti);
         }
 
 
-        return new UserDTO(user.getUsername(), user.getEmail(), user.getNome(), user.getCognome(),
-                user.getEta(), user.getNazionalita(), user.getLingueParlate(), user.getRuoli(), user.getCredito(), user.getImmagineProfilo(), tDTO);
+        Set<String> linguePulite = new HashSet<>(user.getLingueParlate());
+        Set<Role> ruoliPuliti = new HashSet<>(user.getRuoli());
+
+        return new UserDTO(
+                user.getUsername(), 
+                user.getEmail(), 
+                user.getNome(), 
+                user.getCognome(),
+                user.getEta(), 
+                user.getNazionalita(), 
+                linguePulite, 
+                ruoliPuliti,  
+                user.getCredito(), 
+                user.getImmagineProfilo(), 
+                tDTO
+        );
     }
 
-
-
-    // --- CLASSE INNESTATA - estensione teacher (STATIC) ---
+    // --- CLASSE INNESTATA ---
     public static class TeacherProfileDTO implements Serializable {
         private String aboutMe;
         private Set<String> titoliStudio;
@@ -88,6 +99,4 @@ public class UserDTO implements Serializable {
         public String getAboutMe() { return aboutMe; }
         public Set<String> getTitoliStudio() { return titoliStudio; }
     }
-
 }
-

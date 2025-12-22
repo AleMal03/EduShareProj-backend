@@ -1,7 +1,6 @@
 package edushare.serveredushare.filters;
 
 import edushare.serveredushare.DTO.UserDTO;
-import edushare.serveredushare.DTO.UserDto;
 import edushare.serveredushare.persistence.User;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

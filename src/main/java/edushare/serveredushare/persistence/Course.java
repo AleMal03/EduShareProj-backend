@@ -8,28 +8,28 @@ import java.util.List;
 
 /// Entità Corso acquistabile dagli utenti e di proprietà di un insegnante
 @Entity
-@Table(name = "corsi")
+@Table(name = "Corsi")
 public class Course {
 	public enum Difficolta{PRINCIPIANTE, FACILE, MEDIO, DIFFICILE, ESPERTO}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "idCorso", nullable = false)
+	@Column(name = "Id", nullable = false)
 	private Long id;
 
-	@Column(name = "nomeCorso", nullable = false)
+	@Column(name = "Nome Corso", nullable = false)
 	private String nome;
 
-	@Column(name = "materiaCorso", nullable = false)
+	@Column(name = "Materia Corso", nullable = false)
 	private String materia;
 
-	@Column(name = "prezzo", nullable = false)
+	@Column(name = "Prezzo", nullable = false)
 	private double prezzo;
 
-	@Column(name = "difficolta")
+	@Column(name = "Difficolta")
 	private Difficolta difficolta;
 
-	@Column(name = "icona")
+	@Column(name = "Icona")
 	private String icona;
 
 	@ManyToOne

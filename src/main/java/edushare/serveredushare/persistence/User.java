@@ -7,51 +7,51 @@ import java.util.*;
 
 /// Entità User con informazioni del profilo utente
 @Entity
-@Table(name = "utenti")
+@Table(name = "Utenti")
 public class User {
 	public enum Role {TEACHER, STUDENT}
 
 	@Id
-	@Column(name = "username", unique = true, nullable = false)
+	@Column(name = "Username", unique = true, nullable = false)
 	private String username;
 
-	@Column(name = "password", nullable = false)
+	@Column(name = "Password", nullable = false)
 	private String password;
 
-	@Column(name = "nome", nullable = false)
+	@Column(name = "Nome", nullable = false)
 	private String nome;
 
-	@Column(name = "cognome", nullable = false)
+	@Column(name = "Cognome", nullable = false)
 	private String cognome;
 
-	@Column(name = "email", nullable = false)
+	@Column(name = "Email", nullable = false)
 	private String email;
 
-	@Column(name = "eta")
+	@Column(name = "Eta")
 	private int eta;
 
-	@Column(name = "nazionalita")
+	@Column(name = "Nazionalita")
 	private String nazionalita;
 
 	@Column(nullable = false)
 	@ElementCollection(fetch = FetchType.EAGER)     // Campo con molteplicità 1...N
 	private Set<String> lingueParlate;
 
-	@Column(name = "ruolo", nullable = false)
+	@Column(name = "Ruolo", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Set<Role> ruoli;
 
-	@Column(name = "immagineProfilo")
+	@Column(name = "Immagine Profilo")
 	private String immagineProfilo;
 
-	@Column(name = "credito")
+	@Column(name = "Credito")
 	private double credito;
 
 	 @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)    // Cascade perché TeacherProfile è subordinato a User
 	 private TeacherProfile teacherProfile;
 
 	 @ManyToMany
-	 @JoinTable(name = "utenti_corsiSeguiti")
+	 @JoinTable(name = "Corsi Seguiti Utente")
 	 private List<Course> corsiSeguiti;
 
 	public User(){
@@ -70,7 +70,7 @@ public class User {
 		this.nazionalita = nazionalita;
 		this.lingueParlate = new HashSet<>(lingueParlate);
 		this.ruoli = new HashSet<>(ruoli);
-		this.immagineProfilo = img == null ? "defaultUsr.png" : img;
+		this.immagineProfilo = img == null ? "default_user.png" : img;
 		this.credito = credito;
 	}
 

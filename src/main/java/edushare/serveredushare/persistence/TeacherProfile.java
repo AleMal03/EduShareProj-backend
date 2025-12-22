@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "professori")
+@Table(name = "Professori")
 public class TeacherProfile {
 	@Id
 	private String username;
@@ -15,19 +15,19 @@ public class TeacherProfile {
 	@MapsId     // Indica che la PK di TeacherProfile dev'essere la stessa di User
 	private User user;
 
-	@Column(name = "descrizione", nullable = false)
+	@Column(name = "AboutMe", nullable = false)
 	private String aboutMe;
 
-	@Column(name = "titoliStudio", nullable = false)
+	@Column(name = "Titoli Di Studio", nullable = false)
 	@ElementCollection(fetch = FetchType.EAGER)     // Campo con molteplicità 1...N
 	private Set<String> titoliStudio;
 
 	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-	private List<Course> ownedCourses;
+	private List<Course> mieiCorsi;
 
 	public TeacherProfile() {
 		titoliStudio = new HashSet<String>();
-		ownedCourses = new LinkedList<Course>();
+		mieiCorsi = new LinkedList<Course>();
 	}
 
 	public TeacherProfile(User user, String aboutMe, Set<String> titoliStudio) throws IllegalArgumentException {
@@ -57,11 +57,11 @@ public class TeacherProfile {
 	}
 
 	@JsonIgnore
-	public List<Course> getOwnedCourses() {
-		return ownedCourses;
+	public List<Course> getMieiCorsi() {
+		return mieiCorsi;
 	}
 
 	public void addCourse(Course course) {
-		ownedCourses.add(course);
+		mieiCorsi.add(course);
 	}
 }

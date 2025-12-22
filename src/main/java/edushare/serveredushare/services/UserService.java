@@ -1,7 +1,6 @@
 package edushare.serveredushare.services;
 
 import edushare.serveredushare.persistence.*;
-import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -51,6 +50,16 @@ public class UserService {
 				Set.of(User.Role.STUDENT), "alema", 12.00);
 
 		userRepository.save(newUser);
+
+		/* User 4 (insegnante) */
+		newUser = new User("Chi123", "ch123", "Chiara", "Eli",
+				"xhiaeli@gmail.com", 18, "Italiana", Set.of("Italiano", "Inglese", "Spagnolo"),
+				Set.of(User.Role.STUDENT, User.Role.TEACHER), "chia", 15.00);
+
+		addTeacherProfileToUser(newUser, "Prof Chiara",
+				Set.of("Laurea triennale in niente"));
+
+		userRepository.save(newUser);
 	}
 
 	public boolean checkCredentials(String username, String password){
@@ -81,8 +90,8 @@ public class UserService {
 		Optional<Course> opCorso = courseRepository.findById(idCorso);
 		User user = userRepository.findByUsername(username);
 
-		if(opCorso.isPresent() && user != null){
+		if(opCorso.isPresent() && user != null)
 			user.addToCorsiSeguiti(opCorso.get());
-		}
+		
 	}
 }

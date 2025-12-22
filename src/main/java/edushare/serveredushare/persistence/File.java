@@ -4,20 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "files")
+@Table(name = "Files")
 public class File {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "idFile")
+	@Column(name = "Id")
 	private Long id;
 
-	@Column(name = "nomeFile", nullable = false)
+	@Column(name = "Nome File", nullable = false)
 	private String nome;
 
-	@Column(name = "pathFile", nullable = false)
+	@Column(name = "Path File", nullable = false)
 	private String path;
 
-	@Column(name = "iconaFile")
+	@Column(name = "Icona File")
 	private String icona;
 
 	@ManyToOne
@@ -28,7 +28,7 @@ public class File {
 	public File(String nome, String path, String icona, Course course) {
 		this.nome = nome;
 		this.path = path;
-		this.icona = icona == null ? "defaultFileIcon.png" :  icona;
+		this.icona = icona == null ? "default_file_icon.png" :  icona;
 		this.course = course;
 	}
 

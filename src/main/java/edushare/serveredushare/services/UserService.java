@@ -141,16 +141,18 @@ public class UserService {
 
 	/// Modifica la password dell'utente dato lo username e la vecchia password (per verificare l'utente)
 	@Transactional
-	public boolean changeUserPassword(String username, String oldPassword, String newPassword){
+	public boolean changeUserPassword(String username, String oldPassword, String newPassword) throws IllegalArgumentException{
 		if(username != null && oldPassword != null && newPassword != null){
-			if(checkCredentials(username, oldPassword)){    // Prima di cambiare la password, verifico che l'utente abbia immesso la vecchia password correttamente
-				User user = getUserByUsername(username);
+			User user = getUserByUsername(username);
 
-				if(user != null){
+			if(user != null){
+				if(user.getPassword().equals(oldPassword)) {    // Prima di cambiare la password, verifico che l'utente abbia immesso la vecchia password correttamente
+
 					user.setPassword(newPassword);
 					userRepository.save(user);
 					return true;
 				}
+				else{throw new IllegalArgumentException("La vecchia password è errata");}
 			}
 		}
 		return false;
@@ -165,7 +167,7 @@ public class UserService {
 			// Ignora le stringhe vuote
 			setLingue.removeIf(String::isBlank);
 
-			if(user != null){
+			if(user != null && !setLingue.isEmpty()){
 				user.setLingueParlate(setLingue);
 				userRepository.save(user);
 				return true;
@@ -198,7 +200,7 @@ public class UserService {
 			// Ignora le stringhe vuote
 			setTitoli.removeIf(String::isBlank);
 
-			if(teacher != null){
+			if(teacher != null && !setTitoli.isEmpty()){
 				teacher.setTitoliStudio(setTitoli);
 				teacherRepository.save(teacher);
 				return true;

@@ -59,6 +59,38 @@ public class ModificaDatiUserController {
 		}
 	}
 
+	@PostMapping("/password")
+	public ResponseEntity<SessionData> changePassword(HttpSession session, @RequestBody Map<String, String> reqBody){
+		String oldPsw = reqBody.get("oldPsw");
+		String newPsw = reqBody.get("newPsw");
+		UserDto user = (UserDto) session.getAttribute("user");
+
+		// Controllo di sicurezza: se la sessione è scaduta o non esiste
+		if (user == null) {
+			return ResponseEntity.status(401).body(new SessionData(null, "Sessione scaduta."));
+		}
+
+		try{
+			boolean success = userService.changeUserPassword(user.getUsername(), oldPsw, newPsw);
+			if (success) {
+				UserDto updatedUser = UserDtoMapper.map(userService.getUserByUsername(user.getUsername()));
+
+				session.setAttribute("user", updatedUser);
+
+				return ResponseEntity.ok(new SessionData(updatedUser, "Password aggiornata con successo."));
+			}
+			else {
+				return ResponseEntity.badRequest().body(new SessionData(user, "Dati non validi."));
+			}
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(401).body(new SessionData(user, e.getMessage()));
+		} catch (Exception e) {
+			// CATCH 2: Errori imprevisti (es. DB down) -> 500
+			return ResponseEntity.internalServerError()
+					.body(new SessionData(user, "Errore interno del server."));
+		}
+	}
+
 	@PostMapping("/fotoProfilo")
 	public ResponseEntity<SessionData> changeFotoProfilo(HttpSession session, @RequestBody Map<String, String> reqBody){
 		String newFoto = reqBody.get("data");

@@ -1,4 +1,4 @@
-package edushare.serveredushare.Controllers;
+package edushare.serveredushare.controllers;
 
 import edushare.serveredushare.DTO.CoursesListDTO;
 import edushare.serveredushare.persistence.Course;
@@ -62,11 +62,6 @@ public class MieiCorsiController {
     }
 
 
-
-    @GetMapping("/prova")
-    public String prova() {
-        return "Stronzo";
-    }
     
 
 

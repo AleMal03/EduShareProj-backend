@@ -24,7 +24,7 @@ public class User {
 	@Column(name = "Cognome", nullable = false)
 	private String cognome;
 
-	@Column(name = "Email", nullable = false)
+	@Column(name = "Email", nullable = false, unique = true)
 	private String email;
 
 	@Column(name = "Eta")
@@ -38,7 +38,7 @@ public class User {
 	private Set<String> lingueParlate;
 
 	@Column(name = "Ruolo", nullable = false)
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING)    // Serve a trattare il valore dell'enum come stringa invece che come int
 	private Set<Role> ruoli;
 
 	@Column(name = "Immagine Profilo")
@@ -47,8 +47,9 @@ public class User {
 	@Column(name = "Credito")
 	private double credito;
 
-	 @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)    // Cascade perché TeacherProfile è subordinato a User
-	 private TeacherProfile teacherProfile;
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)    // Cascade perché TeacherProfile è subordinato a User
+	private TeacherProfile teacherProfile;
+
 
 	 @ManyToMany
 	 @JoinTable(name = "Corsi Seguiti Utente")
@@ -73,6 +74,8 @@ public class User {
 		this.immagineProfilo = img == null ? "default_user.png" : img;
 		this.credito = credito;
 	}
+
+	// ---- GETTERS ----
 
 	public String getUsername() {
 		return username;
@@ -121,6 +124,10 @@ public class User {
 		return teacherProfile;
 	}
 
+	public List<Course> getCorsiSeguiti() {return corsiSeguiti;}
+
+	// ---- SETTERS ----
+
 	public void setTeacherProfile(TeacherProfile teacherProfile) throws IllegalStateException{
 		if(ruoli.contains(Role.TEACHER))
 			this.teacherProfile = teacherProfile;
@@ -128,11 +135,39 @@ public class User {
 			throw new IllegalStateException("L'utente " + this.username + " non ha il ruolo TEACHER.");
 	}
 
-	public List<Course> getCorsiSeguiti() {
-		return corsiSeguiti;
+	public void setPassword(String password) {
+		this.password = password;
 	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setLingueParlate(Set<String> lingueParlate) {
+		this.lingueParlate = new HashSet<>(lingueParlate);
+	}
+
+	public void setImmagineProfilo(String immagineProfilo) {
+		this.immagineProfilo = immagineProfilo;
+	}
+
+	// ---- METODI  ----
 
 	public void addToCorsiSeguiti(Course course){
 		this.corsiSeguiti.add(course);
+	}
+
+	public void ricaricaCredito(double amount) throws IllegalStateException{
+		if(amount < 0)
+			throw new IllegalStateException("Credito negativo");
+
+		this.credito += amount;
+	}
+
+	public void sottraiCredito(double amount) throws IllegalStateException{
+		if(amount < 0)
+			throw new IllegalStateException("Credito negativo");
+
+		this.credito -= amount;
 	}
 }

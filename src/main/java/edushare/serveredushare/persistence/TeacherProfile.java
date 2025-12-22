@@ -39,6 +39,8 @@ public class TeacherProfile {
 		this.titoliStudio = titoliStudio;
 	}
 
+	// ---- GETTERS ----
+
 	public String getUsername() {
 		return username;
 	}
@@ -60,6 +62,19 @@ public class TeacherProfile {
 	public List<Course> getMieiCorsi() {
 		return mieiCorsi;
 	}
+
+	// ---- SETTERS ----
+
+	public void setAboutMe(String aboutMe) {
+		this.aboutMe = aboutMe;
+	}
+
+	public void setTitoliStudio(Set<String> titoliStudio) {
+		this.titoliStudio = titoliStudio;
+	}
+
+
+	// ---- METODI ----
 
 	public void addCourse(Course course) {
 		mieiCorsi.add(course);

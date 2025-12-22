@@ -7,6 +7,7 @@ import edushare.serveredushare.persistence.TeacherProfile;
 import edushare.serveredushare.persistence.User;
 import edushare.serveredushare.persistence.User.Role;
 
+
 public class UserDTO implements Serializable {
     private String username;
     private String email;
@@ -17,8 +18,12 @@ public class UserDTO implements Serializable {
     private Set<String> lingueParlate;
     private Set<Role> ruoli;
     private TeacherProfileDTO teacherProfileDTO;
+    private double credito;
+	private String fotoProfilo;
 
-    public UserDTO(String username, String email, String nome, String cognome, int eta, String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, TeacherProfileDTO teacherProfileDto) {
+    public UserDTO(){}
+
+    public UserDTO(String username, String email, String nome, String cognome, int eta, String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, double credito, String fotoProfilo, TeacherProfileDTO teacherProfileDto) {
         this.username = username;
         this.email = email;
         this.nome = nome;
@@ -28,8 +33,9 @@ public class UserDTO implements Serializable {
         this.lingueParlate = lingueParlate;
         this.ruoli = ruoli;
         this.teacherProfileDTO = teacherProfileDto;
+        this.credito = credito;
+		this.fotoProfilo = fotoProfilo;
     }
-
 
 
     // --- GETTERS ---
@@ -41,7 +47,9 @@ public class UserDTO implements Serializable {
     public String getNazionalita() { return nazionalita; }
     public Set<String> getLingueParlate() { return lingueParlate; }
     public Set<Role> getRuoli() { return ruoli; }
-    public TeacherProfileDTO getTeacherProfileDto() { return teacherProfileDTO; }
+    public TeacherProfileDTO getTeacherProfileDTO() { return teacherProfileDTO; }
+    public double getCredito() { return credito; }
+    public String getFotoProfilo() {return fotoProfilo;}
 
 
 
@@ -58,8 +66,9 @@ public class UserDTO implements Serializable {
             tDTO = new TeacherProfileDTO(teacherProfile.getAboutMe(), teacherProfile.getTitoliStudio());
         }
 
+
         return new UserDTO(user.getUsername(), user.getEmail(), user.getNome(), user.getCognome(),
-                user.getEta(), user.getNazionalita(), user.getLingueParlate(), user.getRuoli(), tDTO);
+                user.getEta(), user.getNazionalita(), user.getLingueParlate(), user.getRuoli(), user.getCredito(), user.getImmagineProfilo(), tDTO);
     }
 
 
@@ -69,6 +78,8 @@ public class UserDTO implements Serializable {
         private String aboutMe;
         private Set<String> titoliStudio;
 
+        public TeacherProfileDTO(){}
+
         public TeacherProfileDTO(String aboutMe, Set<String> titoliStudio) {
             this.aboutMe = aboutMe;
             this.titoliStudio = titoliStudio;
@@ -77,4 +88,6 @@ public class UserDTO implements Serializable {
         public String getAboutMe() { return aboutMe; }
         public Set<String> getTitoliStudio() { return titoliStudio; }
     }
+
 }
+

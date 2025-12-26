@@ -1,15 +1,17 @@
 package edushare.serveredushare.DTO;
 
+import java.util.List;
+
 public class CorsiData {
-	CoursesListDTO listaCorsi;  // Lista corsi da inviare al frontend
+	List<CourseDTO> listaCorsi;  // Lista corsi da inviare al frontend
 	String message;
 
-	public CorsiData(CoursesListDTO listaCorsi, String message) {
+	public CorsiData(List<CourseDTO> listaCorsi, String message) {
 		this.listaCorsi = listaCorsi;
 		this.message = message;
 	}
 
-	public CoursesListDTO getListaCorsi() {
+	public List<CourseDTO> getListaCorsi() {
 		return listaCorsi;
 	}
 

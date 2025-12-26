@@ -1,18 +1,18 @@
 package edushare.serveredushare.controllers;
 
 import edushare.serveredushare.DTO.CorsiData;
-import edushare.serveredushare.DTO.CoursesListDTO;
+import edushare.serveredushare.DTO.CourseDTO;
 import edushare.serveredushare.DTO.UserDTO;
 import edushare.serveredushare.persistence.Course;
 import edushare.serveredushare.services.CourseService;
 import jakarta.servlet.http.HttpSession;
-import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/corsi")
@@ -27,21 +27,24 @@ public class CorsiController {
 	/**
 	 * Restituisce tutti i corsi presenti nel DB
 	 */
+	// Esempio "http://localhost:5173/corsi/?nomeCorso=TWeb"
 	@GetMapping("")
 	public ResponseEntity<CorsiData> allCourses(@RequestParam (required = false) String nomeCorso,
-	                                            @RequestParam (required = false) String owner,
+	                                            @RequestParam (required = false) String teacher,
 	                                            @RequestParam (required = false) String materia,
-	                                            @RequestParam (required = false) Course.Difficolta difficolta){
-		List<Course> listaCourses = courseService.getFilteredCourses(nomeCorso, owner, materia, difficolta);
+	                                            @RequestParam (required = false) Course.Difficolta difficolta,
+	                                            @RequestParam (required = false) Double prezzo){
+		List<Course> listaCourses = courseService.getFilteredCourses(nomeCorso, teacher, materia, difficolta, prezzo);
 
-		return ResponseEntity.ok(new CorsiData(CoursesListDTO.map(listaCourses), "Corsi filtrati"));
+		return ResponseEntity.ok(new CorsiData(listaCourses.stream()
+				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi filtrati"));
 	}
 
 	/**
 	 * Restituisce tutti i corsi seguiti dall'utente loggato
 	 */
 	@GetMapping("seguiti")
-	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(@RequestParam String username, HttpSession session) {
+	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(HttpSession session) {
 		UserDTO sessionUser = (UserDTO) session.getAttribute("user");
 
 		if (sessionUser == null) {
@@ -49,9 +52,10 @@ public class CorsiController {
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(username);
+		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(sessionUser.getUsername());
 
-		return ResponseEntity.ok(new CorsiData(CoursesListDTO.map(corsiGrezzi), "Corsi seguiti"));
+		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
+				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
 	}
 
 	/**
@@ -68,12 +72,13 @@ public class CorsiController {
 
 		List<Course> corsiGrezzi = courseService.getCoursesByUsername(sessionUser.getUsername());
 
-		return ResponseEntity.ok(new CorsiData(CoursesListDTO.map(corsiGrezzi), "Corsi seguiti"));
+		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
+				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
 	}
 
 	// POST: Aggiungi corso
 	@PostMapping("/miei/aggiungi")
-	public ResponseEntity<CorsiData> aggiungiCorso(HttpSession session, @RequestBody CoursesListDTO.CourseDTO nuovoCorso) {
+	public ResponseEntity<CorsiData> aggiungiCorso(HttpSession session, @RequestBody CourseDTO nuovoCorso) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 
 		if (user == null) {
@@ -94,7 +99,8 @@ public class CorsiController {
 
 			// Ritorno la lista aggiornata
 			List<Course> listaAggiornata = courseService.getCoursesByUsername(user.getUsername());
-			return ResponseEntity.ok(new CorsiData(CoursesListDTO.map(listaAggiornata), "Corso aggiunto correttamente"));
+			return ResponseEntity.ok(new CorsiData(listaAggiornata.stream()
+					.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corso aggiunto correttamente"));
 
 		} catch (Exception e) {
 			return ResponseEntity.badRequest()
@@ -118,10 +124,31 @@ public class CorsiController {
 			courseService.rimuoviCorso(idCorso, user.getUsername());
 
 			List<Course> listaAggiornata = courseService.getCoursesByUsername(user.getUsername());
-			return ResponseEntity.ok(new CorsiData(CoursesListDTO.map(listaAggiornata), "Corso rimosso correttamente"));
+			return ResponseEntity.ok(new CorsiData(listaAggiornata.stream()
+					.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corso rimosso correttamente"));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest()
 					.body(new CorsiData(null ,"Errore nella rimozione: " + e.getMessage()));
 		}
 	}
+
+	/**
+	 * Ritorna tutte le materie presenti nel DB
+	 */
+	@GetMapping("/materie")
+	public ResponseEntity<Set<String>> materie(){
+		return ResponseEntity.ok(courseService.getMaterie());
+	}
+
+	/**
+	 * Ritorna tutte le difficolta possibili
+	 */
+	@GetMapping("/difficolta")
+	public ResponseEntity<Course.Difficolta[]> difficolta(){return ResponseEntity.ok(Course.Difficolta.values());}
+
+	/**
+	 * Ritorna il costo massimo dei corsi
+	 */
+	@GetMapping("/maxCosto")
+	public ResponseEntity<Integer> maxCosto(){return ResponseEntity.ok((int) Math.ceil(courseService.getMaxCosto()));}
 }

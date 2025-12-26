@@ -7,14 +7,23 @@ import java.util.List;
 @Component
 public class SecurityPathConfig {
 
-	// Unica lista centralizzata dei path pubblici
-	private static final List<String> PUBLIC_PATHS = List.of(
+	// Unica lista centralizzata dei path pubblici (PREFIXES)
+	private static final List<String> PUBLIC_PREFIXES = List.of(
 			"/session"
+	);
+
+	// EXACT MATCH (Pubblici solo se coincidono esattamente, es. /corsi ma NON /corsi/seguiti)
+	private static final List<String> PUBLIC_EXACT_MATCHES = List.of(
+			"/corsi",
+			"/corsi/materie",
+			"/corsi/difficolta",
+			"/corsi/maxCosto"
 	);
 
 	private static final List<String> MODIFY_TEACHER_FIELDS_PATHS = List.of(
 			"/modify_data/aboutMe",
 			"/modify_data/titoliStudio"
+
 	);
 
 	/**
@@ -22,7 +31,7 @@ public class SecurityPathConfig {
 	 */
 	public boolean isPublic(String requestPath) {
 		// Ritorna true se il path inizia con una delle stringhe nella whitelist
-		return PUBLIC_PATHS.stream().anyMatch(requestPath::startsWith);
+		return PUBLIC_PREFIXES.stream().anyMatch(requestPath::startsWith) || PUBLIC_EXACT_MATCHES.stream().anyMatch(requestPath::equals);
 	}
 
 	/**

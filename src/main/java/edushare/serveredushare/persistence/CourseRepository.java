@@ -1,6 +1,8 @@
 package edushare.serveredushare.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,24 +16,16 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // Restituisce i corsi seguiti da uno user 
     List<Course> findByStudentiIscritti_Username(String username);
 
-	List<Course> findByMateriaIgnoreCase(String materia);
-	List<Course> findByDifficolta(Course.Difficolta difficolta);
-	List<Course> findByNomeIgnoreCase(String nomeCorso);
-
-	// 2 filtri
-	List<Course> findByNomeAndOwner_UsernameAllIgnoreCase(String nomeCorso, String username);
-	List<Course> findByNomeIgnoreCaseAndDifficolta (String nomeCorso, Course.Difficolta difficolta);
-	List<Course> findByNomeAndMateriaAllIgnoreCase(String nomeCorso, String materia);
-	List<Course> findByOwner_UsernameIgnoreCaseAndDifficolta(String username, Course.Difficolta difficolta);
-	List<Course> findByOwner_UsernameAndMateriaAllIgnoreCase(String username, String materia);
-	List<Course> findByMateriaIgnoreCaseAndDifficolta(String materia, Course.Difficolta difficolta);
-
-	// 3 filtri
-	List<Course> findByNomeAndOwner_UsernameAndMateriaAllIgnoreCase(String nome, String username, String materia);
-	List<Course> findByNomeAndOwner_UsernameAllIgnoreCaseAndDifficolta(String nome, String username, Course.Difficolta difficolta);
-	List<Course> findByNomeAndMateriaAllIgnoreCaseAndDifficolta(String nome, String materia, Course.Difficolta difficolta);
-	List<Course> findByOwner_UsernameAndMateriaAllIgnoreCaseAndDifficolta(String username, String materia, Course.Difficolta difficolta);
-
-	// 4 filtri
-	List<Course> findByNomeAndOwner_UsernameAndMateriaAllIgnoreCaseAndDifficolta(String nomeCorso, String username, String materia, Course.Difficolta difficolta);
-}
+	@Query("SELECT c FROM Course c WHERE " +
+			"(:nome IS NULL OR LOWER(c.nome) LIKE :nome) AND " +
+			"(:owner IS NULL OR LOWER(c.owner.username) LIKE :owner) AND " +
+			"(:materia IS NULL OR c.materia = :materia) AND " +
+			"(:difficolta IS NULL OR c.difficolta = :difficolta) AND" +
+			"(:prezzo IS NULL OR c.prezzo <= :prezzo)")
+	List<Course> searchCourses(
+			@Param("nome") String nome,
+			@Param("owner") String owner,
+			@Param("materia") String materia,
+			@Param("difficolta") Course.Difficolta difficolta,
+			@Param("prezzo") Double prezzo
+	);}

@@ -1,5 +1,6 @@
 package edushare.serveredushare.services;
 
+import com.sun.jdi.DoubleValue;
 import edushare.serveredushare.persistence.*;
 import jakarta.transaction.Transactional;
 
@@ -10,9 +11,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @DependsOn("userService")   // Indica che questo servizio necessita che userService sia già stato inizializzato
@@ -130,7 +129,9 @@ public class CourseService {
 		owner.addCourse(newCourse);
 	}
 
-
+	/**
+	 * Rimuove il corso con l'id passato
+	 */
     @Transactional
     public void rimuoviCorso(Long idCorso, String ownerId) {
         Course corso = courseRepository.findById(idCorso)
@@ -177,45 +178,46 @@ public class CourseService {
 
 	public List<Course> getAllCourses(){return courseRepository.findAll();}
 
-	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta){
-		// 0
-		if(nomeCorso == null && owner == null && materia == null && difficolta == null)
-			return getAllCourses();
-		// 1
-		else if(owner == null && materia == null && difficolta == null)
-			return courseRepository.findByNomeIgnoreCase(nomeCorso);
-		else if(nomeCorso == null && materia == null && difficolta == null)
-			return courseRepository.findByOwner_Username(owner);
-		else if(nomeCorso == null && owner == null && difficolta == null)
-			return courseRepository.findByMateriaIgnoreCase(materia);
-		else if(nomeCorso == null && owner == null && materia == null)
-			return courseRepository.findByDifficolta(difficolta);
-		// 2
-		else if(nomeCorso == null && owner == null)
-			return courseRepository.findByMateriaIgnoreCaseAndDifficolta(materia, difficolta);
-		else if(nomeCorso == null && materia == null)
-			return courseRepository.findByOwner_UsernameIgnoreCaseAndDifficolta(owner, difficolta);
-		else if(nomeCorso == null && difficolta == null)
-			return courseRepository.findByOwner_UsernameAndMateriaAllIgnoreCase(owner, materia);
-		else if(owner == null && materia == null)
-			return courseRepository.findByNomeIgnoreCaseAndDifficolta(nomeCorso, difficolta);
-		else if(owner == null && difficolta == null)
-			return courseRepository.findByNomeAndMateriaAllIgnoreCase(nomeCorso, materia);
-		else if(materia == null && difficolta == null)
-			return courseRepository.findByNomeAndOwner_UsernameAllIgnoreCase(nomeCorso, owner);
-		// 3
-		else if(nomeCorso == null)
-			return courseRepository.findByOwner_UsernameAndMateriaAllIgnoreCaseAndDifficolta(owner, materia, difficolta);
-		else if(owner == null)
-			return courseRepository.findByNomeAndMateriaAllIgnoreCaseAndDifficolta(nomeCorso, materia, difficolta);
-		else if(materia == null)
-			return courseRepository.findByNomeAndOwner_UsernameAllIgnoreCaseAndDifficolta(nomeCorso, owner, difficolta);
-		else if(difficolta == null)
-			return courseRepository.findByNomeAndOwner_UsernameAndMateriaAllIgnoreCase(nomeCorso, owner, materia);
+	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta, Double prezzo){
+		// Se nomeCorso è presente, lo rendiamo minuscolo e aggiungiamo % per il pattern matching nella query
+		if (nomeCorso != null && !nomeCorso.isBlank()) {
+			nomeCorso = "%" + nomeCorso.toLowerCase() + "%";
+		} else {
+			nomeCorso = null; // Assicura che stringhe vuote diventino null
+		}
 
-		//4
-		else
-			return courseRepository.findByNomeAndOwner_UsernameAndMateriaAllIgnoreCaseAndDifficolta(nomeCorso, owner, materia, difficolta);
+		// Idem per owner
+		if (owner != null && !owner.isBlank()) {
+			owner = "%" + owner.toLowerCase() + "%";
+		} else {
+			owner = null;
+		}
+
+		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo);
 	}
 
+	public Set<String> getMaterie(){
+		List<Course> corsi = getAllCourses();
+		Set<String> materie = new HashSet<>();
+
+		for(Course c : corsi){
+			materie.add(c.getMateria());
+		}
+
+		return materie;
+	}
+
+	public Double getMaxCosto(){
+		List<Course> corsi = courseRepository.findAll();
+
+		double maxCosto = 0;
+		for(Course c : corsi){
+			double costo = c.getPrezzo();
+			if(costo > maxCosto){
+				maxCosto = costo;
+			}
+		}
+
+		return maxCosto;
+	}
 }

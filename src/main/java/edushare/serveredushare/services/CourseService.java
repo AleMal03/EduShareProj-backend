@@ -35,7 +35,7 @@ public class CourseService {
 			creaNuovoCorso("Tecnologie Web", "Informatica", 0, Course.Difficolta.FACILE,
 					"TW.png", "Prof1", null);
 
-			creaNuovoCorso("Sistemi Operativi", "Informatica", 10, Course.Difficolta.MEDIO,
+			creaNuovoCorso("Sistemi Operativi", "Informatica", 10, Course.Difficolta.MEDIA,
 					"SO.png", "Prof1", null);
 
 			creaNuovoCorso("DataBase", "Informatica", 0, Course.Difficolta.FACILE,
@@ -47,7 +47,7 @@ public class CourseService {
 			creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE,
 					"default.png", "Chi123", null);
 
-			creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIO,
+			creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIA,
 					"default.png", "Chi123", null);
 
 			creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE,

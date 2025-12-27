@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "Corsi")
 public class Course {
-	public enum Difficolta{PRINCIPIANTE, FACILE, MEDIO, DIFFICILE, ESPERTO}
+	public enum Difficolta{FACILE, MEDIA, DIFFICILE}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

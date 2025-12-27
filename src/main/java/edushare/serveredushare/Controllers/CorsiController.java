@@ -60,7 +60,11 @@ public class CorsiController {
 	 * Restituisce tutti i corsi seguiti dall'utente loggato
 	 */
 	@GetMapping("seguiti")
-	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(HttpSession session) {
+	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(HttpSession session,
+	                                                              @RequestParam (required = false) String nomeCorso,
+	                                                              @RequestParam (required = false) String teacher,
+	                                                              @RequestParam (required = false) String materia,
+	                                                              @RequestParam (required = false) Course.Difficolta difficolta) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 
 		if (user == null) {
@@ -68,7 +72,8 @@ public class CorsiController {
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(user.getUsername());
+		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(
+				user.getUsername(), nomeCorso, teacher, materia, difficolta);
 
 		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
 				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
@@ -78,7 +83,10 @@ public class CorsiController {
 	 * Restituisce tutti i corsi creati dall'utente (insegnante) loggato
 	 */
 	@GetMapping("miei")
-	public ResponseEntity<CorsiData> getCoursesByUsername(HttpSession session) {
+	public ResponseEntity<CorsiData> getCoursesByUsername(HttpSession session,
+	                                                      @RequestParam (required = false) String nomeCorso,
+	                                                      @RequestParam (required = false) String materia,
+	                                                      @RequestParam (required = false) Course.Difficolta difficolta) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 
 		if (user == null) {
@@ -91,7 +99,7 @@ public class CorsiController {
 					.body(new CorsiData(null, "L'utente loggato non è un insegnante"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getCoursesByUsername(user.getUsername());
+		List<Course> corsiGrezzi = courseService.getFilteredCoursesByUsername(nomeCorso, user.getUsername(), materia, difficolta);
 
 		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
 				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi creati"));

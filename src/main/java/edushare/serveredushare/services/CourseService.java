@@ -186,34 +186,48 @@ public class CourseService {
         courseRepository.delete(corso);
     }
 
+	public List<Course> getFilteredCoursesByUsername(String nomeCorso, String owner,String materia, Course.Difficolta difficolta) {
+		nomeCorso = cleanParamString(nomeCorso);
 
+		return courseRepository.searchCourses(nomeCorso, owner.toLowerCase(), materia, difficolta, null, null, null);
+	}
 
 	public List<Course> getCoursesByUsername(String username) {
 		return courseRepository.findByOwner_Username(username);
 	}
 
-	public List<Course> getFollowedCoursesByUsername(String username) {
-		return courseRepository.findByStudentiIscritti_Username(username);
+	public List<Course> getFollowedCoursesByUsername(String studentUsername, String nomeCorso, String owner,String materia,
+	                                                 Course.Difficolta difficolta) {
+		nomeCorso = cleanParamString(nomeCorso);
+		owner = cleanParamString(owner);
+
+		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, null, null, studentUsername);
+
 	}
 
 	public List<Course> getAllCourses(){return courseRepository.findAll();}
 
-	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta, Double prezzo, Short rating){
-		// Se nomeCorso è presente, lo rendiamo minuscolo e aggiungiamo % per il pattern matching nella query
-		if (nomeCorso != null && !nomeCorso.isBlank()) {
-			nomeCorso = "%" + nomeCorso.toLowerCase() + "%";
+	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta,
+	                                       Double prezzo, Short rating){
+
+		nomeCorso = cleanParamString(nomeCorso);
+		owner = cleanParamString(owner);
+
+		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo, rating, null);
+	}
+
+	/**
+	 * Pulisce la stringa passata come parametro dalla GET/POST per la query
+	 */
+	private String cleanParamString(String s){
+		// Se la stringa è presente, la rendiamo minuscola e aggiungiamo % per il pattern matching nella query
+		if (s != null && !s.isBlank()) {
+			s = "%" + s.toLowerCase() + "%";
 		} else {
-			nomeCorso = null; // Assicura che stringhe vuote diventino null
+			s = null;   // Assicura che stringhe vuote diventino null
 		}
 
-		// Idem per owner
-		if (owner != null && !owner.isBlank()) {
-			owner = "%" + owner.toLowerCase() + "%";
-		} else {
-			owner = null;
-		}
-
-		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo, rating);
+		return s;
 	}
 
 	public Set<String> getMaterie(){

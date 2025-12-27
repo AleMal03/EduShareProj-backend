@@ -4,6 +4,7 @@ import edushare.serveredushare.DTO.CorsiData;
 import edushare.serveredushare.DTO.CourseDTO;
 import edushare.serveredushare.DTO.UserDTO;
 import edushare.serveredushare.persistence.Course;
+import edushare.serveredushare.persistence.User;
 import edushare.serveredushare.services.CourseService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -29,12 +30,27 @@ public class CorsiController {
 	 */
 	// Esempio "http://localhost:5173/corsi/?nomeCorso=TWeb"
 	@GetMapping("")
-	public ResponseEntity<CorsiData> allCourses(@RequestParam (required = false) String nomeCorso,
+	public ResponseEntity<CorsiData> allCourses(HttpSession session,
+	                                            @RequestParam (required = false) String nomeCorso,
 	                                            @RequestParam (required = false) String teacher,
 	                                            @RequestParam (required = false) String materia,
 	                                            @RequestParam (required = false) Course.Difficolta difficolta,
-	                                            @RequestParam (required = false) Double prezzo){
-		List<Course> listaCourses = courseService.getFilteredCourses(nomeCorso, teacher, materia, difficolta, prezzo);
+	                                            @RequestParam (required = false) Double prezzo,
+	                                            @RequestParam (required = false) Short rating){
+		List<Course> listaCourses = courseService.getFilteredCourses(nomeCorso, teacher, materia, difficolta, prezzo, rating);
+
+		UserDTO user = (UserDTO) session.getAttribute("user");
+
+		if (user != null) {
+			listaCourses.removeIf(corso ->
+					// Elimino il corso dalla lista da restituire se:
+					// l'utente è il proprietario
+					corso.getOwner().getUsername().equals(user.getUsername()) ||
+
+					// oppure se è uno studente che segue il corso
+					corso.getStudentiIscritti().stream()
+						.anyMatch(studente -> studente.getUsername().equals(user.getUsername())));
+		}
 
 		return ResponseEntity.ok(new CorsiData(listaCourses.stream()
 				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi filtrati"));
@@ -45,14 +61,14 @@ public class CorsiController {
 	 */
 	@GetMapping("seguiti")
 	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(HttpSession session) {
-		UserDTO sessionUser = (UserDTO) session.getAttribute("user");
+		UserDTO user = (UserDTO) session.getAttribute("user");
 
-		if (sessionUser == null) {
+		if (user == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(sessionUser.getUsername());
+		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(user.getUsername());
 
 		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
 				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
@@ -63,20 +79,27 @@ public class CorsiController {
 	 */
 	@GetMapping("miei")
 	public ResponseEntity<CorsiData> getCoursesByUsername(HttpSession session) {
-		UserDTO sessionUser = (UserDTO) session.getAttribute("user");
+		UserDTO user = (UserDTO) session.getAttribute("user");
 
-		if (sessionUser == null) {
+		if (user == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(new CorsiData(null,"Sessione scaduta o utente non loggato"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getCoursesByUsername(sessionUser.getUsername());
+		if(!user.getRuoli().contains(User.Role.TEACHER)){   // Se non se insegnante, non puoi creare corsi
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(new CorsiData(null, "L'utente loggato non è un insegnante"));
+		}
+
+		List<Course> corsiGrezzi = courseService.getCoursesByUsername(user.getUsername());
 
 		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
-				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
+				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi creati"));
 	}
 
-	// POST: Aggiungi corso
+	/**
+	 * POST: Aggiungi corso (se sei insegnante)
+	 * */
 	@PostMapping("/miei/aggiungi")
 	public ResponseEntity<CorsiData> aggiungiCorso(HttpSession session, @RequestBody CourseDTO nuovoCorso) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
@@ -84,6 +107,11 @@ public class CorsiController {
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
+		}
+
+		if(!user.getRuoli().contains(User.Role.TEACHER)){   // Se non se insegnante, non puoi creare corsi
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(new CorsiData(null, "L'utente loggato non è un insegnante"));
 		}
 
 		try {
@@ -116,6 +144,11 @@ public class CorsiController {
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
+		}
+
+		if(!user.getRuoli().contains(User.Role.TEACHER)){   // Se non se insegnante, non puoi creare corsi
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(new CorsiData(null, "L'utente loggato non è un insegnante"));
 		}
 
 		try {

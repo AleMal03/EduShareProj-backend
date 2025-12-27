@@ -47,6 +47,12 @@ public class CourseService {
 			creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE,
 					"default.png", "Chi123", null);
 
+			creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIO,
+					"default.png", "Chi123", null);
+
+			creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE,
+					"default.png", "Prof1", null);
+
 
 
 			// ---------------------------------------------------
@@ -98,6 +104,20 @@ public class CourseService {
 
 			/* 6° Corso Seguito */
 			studente = userRepository.findByUsername("Chi123");
+			course = courseRepository.findById(3L).orElseThrow(() -> new RuntimeException("Course not found"));
+			// Aggiungiamo il corso alla lista dello studente
+			studente.addToCorsiSeguiti(course);
+			userRepository.save(studente);
+
+			/* 7° Corso Seguito */
+			studente = userRepository.findByUsername("AleMa");
+			course = courseRepository.findById(1L).orElseThrow(() -> new RuntimeException("Course not found"));
+			// Aggiungiamo il corso alla lista dello studente
+			studente.addToCorsiSeguiti(course);
+			userRepository.save(studente);
+
+			/* 7° Corso Seguito */
+			studente = userRepository.findByUsername("AleMa");
 			course = courseRepository.findById(3L).orElseThrow(() -> new RuntimeException("Course not found"));
 			// Aggiungiamo il corso alla lista dello studente
 			studente.addToCorsiSeguiti(course);
@@ -178,7 +198,7 @@ public class CourseService {
 
 	public List<Course> getAllCourses(){return courseRepository.findAll();}
 
-	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta, Double prezzo){
+	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta, Double prezzo, Short rating){
 		// Se nomeCorso è presente, lo rendiamo minuscolo e aggiungiamo % per il pattern matching nella query
 		if (nomeCorso != null && !nomeCorso.isBlank()) {
 			nomeCorso = "%" + nomeCorso.toLowerCase() + "%";
@@ -193,7 +213,7 @@ public class CourseService {
 			owner = null;
 		}
 
-		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo);
+		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo, rating);
 	}
 
 	public Set<String> getMaterie(){

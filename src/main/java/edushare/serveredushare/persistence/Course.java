@@ -33,9 +33,13 @@ public class Course {
 	@Column(name = "Icona")
 	private String icona;
 
+	@Column(name = "mediaRecensioni")
+	private Float mediaRecensioni;
+
 	@ManyToOne
 	private TeacherProfile owner;
 
+	//TODO: mappare ManyToMany in una nuova entity
 	@ManyToMany(mappedBy = "corsiSeguiti")
 	private List<User> studentiIscritti;
 
@@ -53,6 +57,7 @@ public class Course {
 		this.difficolta = difficolta;
 		this.icona = icona;
 		this.owner = owner;
+		this.mediaRecensioni = 0F;
 
 		if(risorse != null)
 			this.risorse = List.copyOf(risorse);
@@ -95,6 +100,8 @@ public class Course {
 	public List<File> getRisorse() {
 		return risorse;
 	}
+
+	public Float getMediaRecensioni() {return mediaRecensioni;}
 
 	public void addRisorsa(File risorsa){
 		risorse.add(risorsa);

@@ -21,11 +21,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 			"(:owner IS NULL OR LOWER(c.owner.username) LIKE :owner) AND " +
 			"(:materia IS NULL OR c.materia = :materia) AND " +
 			"(:difficolta IS NULL OR c.difficolta = :difficolta) AND" +
-			"(:prezzo IS NULL OR c.prezzo <= :prezzo)")
+			"(:prezzo IS NULL OR c.prezzo <= :prezzo) AND " +
+			"(:rating IS NULL OR c.mediaRecensioni <= :rating)")
 	List<Course> searchCourses(
 			@Param("nome") String nome,
 			@Param("owner") String owner,
 			@Param("materia") String materia,
 			@Param("difficolta") Course.Difficolta difficolta,
-			@Param("prezzo") Double prezzo
+			@Param("prezzo") Double prezzo,
+			@Param("rating") Short rating
 	);}

@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FileRepository extends JpaRepository<File, Long> {
+public interface RecensioneRepository extends JpaRepository<Recensione, Long> {
 
-    public List<File> getFilesByCorso_Id(Long id);
+    public List<Recensione> findByCorso_Id(Long corsoId);
+
 }

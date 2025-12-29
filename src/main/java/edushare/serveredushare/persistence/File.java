@@ -21,7 +21,8 @@ public class File {
 	private String icona;
 
 	@ManyToOne
-	private Course course;
+    @JoinColumn(name = "Corso_Id", nullable = false)
+    private Course corso;
 
 	public File(){}
 
@@ -29,7 +30,7 @@ public class File {
 		this.nome = nome;
 		this.path = path;
 		this.icona = icona == null ? "default_file_icon.png" :  icona;
-		this.course = course;
+		this.corso = course;
 	}
 
 	public Long getId() {
@@ -49,7 +50,7 @@ public class File {
 	}
 
 	@JsonIgnore
-	public Course getCourse() {
-		return course;
+	public Course getCorso() {
+		return corso;
 	}
 }

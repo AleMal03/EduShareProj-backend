@@ -9,165 +9,143 @@ import java.util.*;
 @Entity
 @Table(name = "Utenti")
 public class User {
-	public enum Role {TEACHER, STUDENT}
+    public enum Role {TEACHER, STUDENT}
 
-	@Id
-	@Column(name = "Username", unique = true, nullable = false)
-	private String username;
+    @Id
+    @Column(name = "Username", unique = true, nullable = false)
+    private String username;
 
-	@Column(name = "Password", nullable = false)
-	private String password;
+    @Column(name = "Password", nullable = false)
+    private String password;
 
-	@Column(name = "Nome", nullable = false)
-	private String nome;
+    @Column(name = "Nome", nullable = false)
+    private String nome;
 
-	@Column(name = "Cognome", nullable = false)
-	private String cognome;
+    @Column(name = "Cognome", nullable = false)
+    private String cognome;
 
-	@Column(name = "Email", nullable = false, unique = true)
-	private String email;
+    @Column(name = "Email", nullable = false, unique = true)
+    private String email;
 
-	@Column(name = "Eta")
-	private int eta;
+    @Column(name = "Eta")
+    private int eta;
 
-	@Column(name = "Nazionalita")
-	private String nazionalita;
+    @Column(name = "Nazionalita")
+    private String nazionalita;
 
-	@Column(nullable = false)
-	@ElementCollection(fetch = FetchType.EAGER)     // Campo con molteplicità 1...N
-	private Set<String> lingueParlate;
+    @Column(nullable = false)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> lingueParlate;
 
-	@Column(name = "Ruolo", nullable = false)
-	@Enumerated(EnumType.STRING)    // Serve a trattare il valore dell'enum come stringa invece che come int
-	private Set<Role> ruoli;
+    // NOTA: Se è un Set, ci va @ElementCollection, non @Column singolo
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "Ruolo") 
+    private Set<Role> ruoli;
 
-	@Column(name = "Immagine Profilo")
-	private String immagineProfilo;
+    @Column(name = "Immagine Profilo")
+    private String immagineProfilo;
 
-	@Column(name = "Credito")
-	private double credito;
+    @Column(name = "Credito")
+    private double credito;
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)    // Cascade perché TeacherProfile è subordinato a User
-	private TeacherProfile teacherProfile;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private TeacherProfile teacherProfile;
 
+    // Lista dei corsi seguiti dall'utente
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore 
+    private List<FollowedCourse> corsiSeguiti = new ArrayList<>();
 
-	 @ManyToMany
-	 @JoinTable(name = "Corsi Seguiti Utente")
-	 private List<Course> corsiSeguiti;
+    public User(){
+        lingueParlate = new HashSet<>();
+        ruoli = new HashSet<>(); 
+    }
 
-	public User(){
-		lingueParlate = new HashSet<>();    // Init per evitare NullPointerException
-		corsiSeguiti = new LinkedList<>();
-	}
+    public User(String username, String password, String nome, String cognome, String email, int eta,
+                String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, String img, double credito){
+        this.username = username;
+        this.password = password;
+        this.nome = nome;
+        this.cognome = cognome;
+        this.email = email;
+        this.eta = eta;
+        this.nazionalita = nazionalita;
+        this.lingueParlate = new HashSet<>(lingueParlate);
+        this.ruoli = new HashSet<>(ruoli);
+        this.immagineProfilo = img == null ? "default_user.png" : img;
+        this.credito = credito;
+    }
 
-	public User(String username, String password, String nome, String cognome, String email, int eta,
-	            String nazionalita, Set<String> lingueParlate, Set<Role> ruoli, String img, double credito){
-		this.username = username;
-		this.password = password;
-		this.nome = nome;
-		this.cognome = cognome;
-		this.email = email;
-		this.eta = eta;
-		this.nazionalita = nazionalita;
-		this.lingueParlate = new HashSet<>(lingueParlate);
-		this.ruoli = new HashSet<>(ruoli);
-		this.immagineProfilo = img == null ? "default_user.png" : img;
-		this.credito = credito;
-	}
+    // ---- GETTERS ----
+    public String getUsername() { return username; }
 
-	// ---- GETTERS ----
+    @JsonIgnore
+    public String getPassword() { return password; }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getNome() { return nome; }
 
-	@JsonIgnore
-	public String getPassword() {
-		return password;
-	}
+    public String getCognome() { return cognome; }
 
-	public String getNome() {
-		return nome;
-	}
+    public String getEmail() { return email; }
 
-	public String getCognome() {
-		return cognome;
-	}
+    public int getEta() { return eta; }
 
-	public String getEmail() {return email;}
+    public String getNazionalita() { return nazionalita; }
 
-	public int getEta() {
-		return eta;
-	}
+    public Set<String> getLingueParlate() { return lingueParlate; }
 
-	public String getNazionalita() {
-		return nazionalita;
-	}
+    public Set<Role> getRuoli() { return ruoli; }
 
-	public Set<String> getLingueParlate() {
-		return lingueParlate;
-	}
+    public String getImmagineProfilo() { return immagineProfilo; }
 
-	public Set<Role> getRuoli() {
-		return ruoli;
-	}
+    public double getCredito() { return credito; }
 
-	public String getImmagineProfilo() {
-		return immagineProfilo;
-	}
+    public TeacherProfile getTeacherProfile(){ return teacherProfile; }
 
-	public double getCredito() {
-		return credito;
-	}
+    // Getter per la nuova lista
+    public List<FollowedCourse> getCorsiSeguiti() {
+        return corsiSeguiti;
+    }
 
-	public TeacherProfile getTeacherProfile(){
-		return teacherProfile;
-	}
+    // ---- SETTERS ----
 
-	public List<Course> getCorsiSeguiti() {return corsiSeguiti;}
+    public void setTeacherProfile(TeacherProfile teacherProfile) throws IllegalStateException{
+        if(ruoli.contains(Role.TEACHER))
+            this.teacherProfile = teacherProfile;
+        else
+            throw new IllegalStateException("L'utente " + this.username + " non ha il ruolo TEACHER.");
+    }
 
-	// ---- SETTERS ----
+    public void setPassword(String password) { this.password = password; }
 
-	public void setTeacherProfile(TeacherProfile teacherProfile) throws IllegalStateException{
-		if(ruoli.contains(Role.TEACHER))
-			this.teacherProfile = teacherProfile;
-		else
-			throw new IllegalStateException("L'utente " + this.username + " non ha il ruolo TEACHER.");
-	}
+    public void setEmail(String email) { this.email = email; }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setLingueParlate(Set<String> lingueParlate) {
+        this.lingueParlate = new HashSet<>(lingueParlate);
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setImmagineProfilo(String immagineProfilo) {
+        this.immagineProfilo = immagineProfilo;
+    }
 
-	public void setLingueParlate(Set<String> lingueParlate) {
-		this.lingueParlate = new HashSet<>(lingueParlate);
-	}
+    // Setter per la nuova lista
+    public void setCorsiSeguiti(List<FollowedCourse> corsiSeguiti) {
+        this.corsiSeguiti = corsiSeguiti;
+    }
 
-	public void setImmagineProfilo(String immagineProfilo) {
-		this.immagineProfilo = immagineProfilo;
-	}
+    // ---- METODI  ----
 
-	// ---- METODI  ----
+    public void ricaricaCredito(double amount) throws IllegalStateException{
+        if(amount < 0)
+            throw new IllegalStateException("Credito negativo");
+        this.credito += amount;
+    }
 
-	public void addToCorsiSeguiti(Course course){
-		this.corsiSeguiti.add(course);
-	}
-
-	public void ricaricaCredito(double amount) throws IllegalStateException{
-		if(amount < 0)
-			throw new IllegalStateException("Credito negativo");
-
-		this.credito += amount;
-	}
-
-	public void sottraiCredito(double amount) throws IllegalStateException{
-		if(amount < 0)
-			throw new IllegalStateException("Credito negativo");
-
-		this.credito -= amount;
-	}
+    public void sottraiCredito(double amount) throws IllegalStateException{
+        if(amount < 0)
+            throw new IllegalStateException("Credito negativo");
+        this.credito -= amount;
+    }
 }

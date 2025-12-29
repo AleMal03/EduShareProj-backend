@@ -28,7 +28,7 @@ public class CorsiController {
 	/**
 	 * Restituisce tutti i corsi presenti nel DB
 	 */
-	// Esempio "http://localhost:5173/corsi/?nomeCorso=TWeb"
+	// Esempio "http://localhost:5173/corsi?nomeCorso=TWeb"
 	@GetMapping("")
 	public ResponseEntity<CorsiData> allCourses(HttpSession session,
 	                                            @RequestParam (required = false) String nomeCorso,
@@ -42,38 +42,40 @@ public class CorsiController {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 
 		if (user != null) {
-			listaCourses.removeIf(corso ->
-					// Elimino il corso dalla lista da restituire se:
-					// l'utente è il proprietario
-					corso.getOwner().getUsername().equals(user.getUsername()) ||
+            listaCourses.removeIf(corso ->
+                    // 1. Elimino se l'utente è il proprietario (Insegnante)
+                    corso.getOwner().getUsername().equals(user.getUsername()) 
+                    
+                    || // OR
+                    
+                    // 2. Elimino se l'utente lo sta già seguendo
+                    // NOTA: Qui la logica cambia perché navighi dentro 'getIscritti()' -> 'getUser()'
+                    corso.getIscritti().stream()
+                            .anyMatch(iscrizione -> iscrizione.getUser().getUsername().equals(user.getUsername()))
+            );
+        }
 
-					// oppure se è uno studente che segue il corso
-					corso.getStudentiIscritti().stream()
-						.anyMatch(studente -> studente.getUsername().equals(user.getUsername())));
-		}
-
-		return ResponseEntity.ok(new CorsiData(listaCourses.stream()
-				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi filtrati"));
+        return ResponseEntity.ok(new CorsiData(listaCourses.stream()
+                .map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi filtrati"));
 	}
 
 	/**
 	 * Restituisce tutti i corsi seguiti dall'utente loggato
 	 */
-	@GetMapping("seguiti")
+	@GetMapping("/seguiti")
 	public ResponseEntity<CorsiData> getFollowedCoursesByUsername(HttpSession session,
 	                                                              @RequestParam (required = false) String nomeCorso,
 	                                                              @RequestParam (required = false) String teacher,
 	                                                              @RequestParam (required = false) String materia,
 	                                                              @RequestParam (required = false) Course.Difficolta difficolta) {
-		UserDTO user = (UserDTO) session.getAttribute("user");
-
+		
+																	UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(new CorsiData(null, "Sessione scaduta o utente non loggato"));
 		}
 
-		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(
-				user.getUsername(), nomeCorso, teacher, materia, difficolta);
+		List<Course> corsiGrezzi = courseService.getFollowedCoursesByUsername(user.getUsername(), nomeCorso, teacher, materia, difficolta);
 
 		return ResponseEntity.ok(new CorsiData(corsiGrezzi.stream()
 				.map(CourseDTO::mapCourseToCourseDTO).toList(), "Corsi seguiti"));
@@ -82,7 +84,7 @@ public class CorsiController {
 	/**
 	 * Restituisce tutti i corsi creati dall'utente (insegnante) loggato
 	 */
-	@GetMapping("miei")
+	@GetMapping("/miei")
 	public ResponseEntity<CorsiData> getCoursesByUsername(HttpSession session,
 	                                                      @RequestParam (required = false) String nomeCorso,
 	                                                      @RequestParam (required = false) String materia,
@@ -192,4 +194,62 @@ public class CorsiController {
 	 */
 	@GetMapping("/maxCosto")
 	public ResponseEntity<Integer> maxCosto(){return ResponseEntity.ok((int) Math.ceil(courseService.getMaxCosto()));}
+
+
+
+	/**
+     * POST: Utente decide di seguire un corso
+     */
+    @PostMapping("/iscrizione")
+    public ResponseEntity<CorsiData> seguiCorso(HttpSession session, @RequestBody Map<String, Long> payload) {
+        UserDTO user = (UserDTO) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new CorsiData(null, "Utente non loggato"));
+        }
+
+        try {
+            Long corsoId = payload.get("id");
+            
+            courseService.iscriviStudente(user.getUsername(), corsoId);
+
+            List<Course> corsiSeguiti = courseService.getFollowedCoursesByUsername(user.getUsername(), null, null, null, null);
+            
+            return ResponseEntity.ok(new CorsiData(corsiSeguiti.stream()
+                    .map(CourseDTO::mapCourseToCourseDTO).toList(), "Iscrizione avvenuta con successo"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new CorsiData(null, "Errore durante l'iscrizione: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * POST: Utente smette di seguire un corso
+     */
+    @PostMapping("/seguiti/disiscrizione")
+    public ResponseEntity<CorsiData> unfollowCorso(HttpSession session, @RequestBody Map<String, Long> payload) {
+        UserDTO user = (UserDTO) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CorsiData(null, "Utente non loggato"));
+        }
+
+        try {
+            Long corsoId = payload.get("id");
+
+            courseService.rimuoviIscrizione(user.getUsername(), corsoId);
+
+            List<Course> corsiSeguiti = courseService.getFollowedCoursesByUsername(
+                    user.getUsername(), null, null, null, null);
+
+            return ResponseEntity.ok(new CorsiData(corsiSeguiti.stream()
+                    .map(CourseDTO::mapCourseToCourseDTO).toList(), "Disiscrizione avvenuta"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new CorsiData(null, "Errore: " + e.getMessage()));
+        }
+    }
+
 }

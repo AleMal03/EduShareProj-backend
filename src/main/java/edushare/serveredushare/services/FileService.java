@@ -11,7 +11,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @DependsOn("courseService")
@@ -54,6 +54,15 @@ public class FileService {
 		File newFile = new File(nome, path, icona, course);
 
 		fileRepository.save(newFile);
-		course.addRisorsa(newFile);
 	}
+
+
+	@Transactional
+	public List<File> getAllFilesByCourseId(Long id){
+		return fileRepository.getFilesByCorso_Id(id);
+	}
+	
+
+
+
 }

@@ -1,10 +1,8 @@
 package edushare.serveredushare.services;
 
-import com.sun.jdi.DoubleValue;
 import edushare.serveredushare.persistence.*;
 import jakarta.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.EventListener;
@@ -12,146 +10,126 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@DependsOn("userService")   // Indica che questo servizio necessita che userService sia già stato inizializzato
+@DependsOn("userService")
 public class CourseService {
 
     private final UserRepository userRepository;
-	private final CourseRepository courseRepository;
-	private final TeacherProfileRepository tpRepository;
+    private final CourseRepository courseRepository;
+    private final TeacherProfileRepository tpRepository;
+    private final FollowedCourseRepository followedCourseRepository;
+    private final RecensioneRepository recensioniRepository;
 
-	public CourseService(CourseRepository courseRepository, TeacherProfileRepository tpRepository, UserRepository userRepository) {
-		this.courseRepository = courseRepository;
-		this.tpRepository = tpRepository;
-		this.userRepository = userRepository;
-	}
+    public CourseService(CourseRepository courseRepository, TeacherProfileRepository tpRepository, UserRepository userRepository, FollowedCourseRepository followedCourseRepository, RecensioneRepository recensioneRepository) {
+        this.courseRepository = courseRepository;
+        this.tpRepository = tpRepository;
+        this.userRepository = userRepository;
+        this.followedCourseRepository = followedCourseRepository;
+        this.recensioniRepository = recensioneRepository;
+    }
 
-	@EventListener(ApplicationReadyEvent.class) // Al posto di @PostConstruction per aprire una sessione che permetta di recuperare il professore lazy dal repository
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional
+    @Order(2)
+    public void init() {
+        try {
+            // Creazione corsi 
+            creaNuovoCorso("Tecnologie Web", "Informatica", 0, Course.Difficolta.FACILE, "TW.png", "Prof1", null);
+            creaNuovoCorso("Sistemi Operativi", "Informatica", 10, Course.Difficolta.MEDIA, "SO.png", "Prof1", null);
+            creaNuovoCorso("DataBase", "Informatica", 0, Course.Difficolta.FACILE, "DB.png", "Prof1", null);
+            creaNuovoCorso("Sistemi Operativi", "Informatica", 15, Course.Difficolta.DIFFICILE, "SO.png", "Chi123", null);
+            creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE, "default.png", "Chi123", null);
+            creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIA, "default.png", "Chi123", null);
+            creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE, "default.png", "Prof1", null);
+
+
+            // ISCRIZIONE DELLO STUDENTE 
+
+            // SimoStr segue corso 1, 4, 5
+            iscriviStudente("SimoStr", 1L);
+            iscriviStudente("SimoStr", 4L);
+            iscriviStudente("SimoStr", 5L);
+
+            // Chi123 segue corso 1, 2, 3
+            iscriviStudente("Chi123", 1L);
+            iscriviStudente("Chi123", 2L);
+            iscriviStudente("Chi123", 3L);
+
+            // AleMa segue corso 1, 3
+            iscriviStudente("AleMa", 1L);
+            iscriviStudente("AleMa", 3L);
+
+
+
+            // RECENSIONI DEI CORSI
+            
+            aggiungiRecensione(2, null, 1L);
+            aggiungiRecensione(4, "Prova", 1L);
+            aggiungiRecensione(5, "Buono", 1L);
+            aggiungiRecensione(1, "Funziona", 1L);
+            aggiungiRecensione(3, null, 1L);
+            aggiungiRecensione(2, null, 1L);
+
+            aggiungiRecensione(3, null, 2L);
+            aggiungiRecensione(5, null, 2L);
+            aggiungiRecensione(1, null, 2L);
+            aggiungiRecensione(2, null, 2L);
+            aggiungiRecensione(2, null, 2L);
+
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Transactional
+    public void aggiungiRecensione(int voto, String descrizione, Long corsoId) {
+        Course course = courseRepository.findById(corsoId).orElse(null);
+
+        Recensione recensione = new Recensione(voto, descrizione, course);
+        recensioniRepository.save(recensione);
+
+        float nuova_media = getAverageReviews(corsoId);
+        aggiornaMediaRecensioni(course.getId(), nuova_media);
+    }
+        
+    
+
 	@Transactional
-	@Order(2)
-	public void init() {
-		try {
-			creaNuovoCorso("Tecnologie Web", "Informatica", 0, Course.Difficolta.FACILE,
-					"TW.png", "Prof1", null);
+    public void iscriviStudente(String username, Long corsoId) {
+        User studente = userRepository.findByUsername(username); // Assumi che restituisca User o gestisci null
+        Course course = courseRepository.findById(corsoId).orElse(null);
 
-			creaNuovoCorso("Sistemi Operativi", "Informatica", 10, Course.Difficolta.MEDIA,
-					"SO.png", "Prof1", null);
+        if (studente != null && course != null) {
+            // Controlliamo se esiste già per non creare duplicati al riavvio
+            if (!followedCourseRepository.existsByUser_UsernameAndCorso_Id(username, corsoId)) {
+                FollowedCourse iscrizione = new FollowedCourse(studente, course);
+                followedCourseRepository.save(iscrizione);
+            }
+        }
+    }
 
-			creaNuovoCorso("DataBase", "Informatica", 0, Course.Difficolta.FACILE,
-					"DB.png", "Prof1", null);
-			
-			creaNuovoCorso("Sistemi Operativi", "Informatica", 15, Course.Difficolta.DIFFICILE,
-					"SO.png", "Chi123", null);
+    @Transactional
+    public void creaNuovoCorso(String nome, String materia, double prezzo, Course.Difficolta difficolta, String icona,
+                               String ownerId, List<File> risorse) throws IllegalArgumentException{
+        Optional<TeacherProfile> opOwner = tpRepository.findById(ownerId);
+        TeacherProfile owner;
 
-			creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE,
-					"default.png", "Chi123", null);
+        if(opOwner.isPresent())
+            owner = opOwner.get();
+        else
+            throw new IllegalArgumentException("Teacher " + ownerId + " not found in creaNuovoCorso");
+        
+        Course newCourse = new Course(nome, materia, prezzo, difficolta, icona, owner, 0);
 
-			creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIA,
-					"default.png", "Chi123", null);
+        courseRepository.save(newCourse);
+        owner.addCourse(newCourse);
+    }
 
-			creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE,
-					"default.png", "Prof1", null);
-
-
-
-			// ---------------------------------------------------
-			// ISCRIZIONE DELLO STUDENTE
-			// ---------------------------------------------------
-
-			Course course;
-			User studente;
-			
-			/* 1° Corso Seguito */
-			studente = userRepository.findByUsername("SimoStr");
-			course = courseRepository.findById(1L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-			/* 2° Corso Seguito */
-			studente = userRepository.findByUsername("SimoStr");
-			course = courseRepository.findById(4L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-			/* 3° Corso Seguito */
-			studente = userRepository.findByUsername("SimoStr");
-			course = courseRepository.findById(5L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-			/* 4° Corso Seguito */
-			studente = userRepository.findByUsername("Chi123");
-			course = courseRepository.findById(1L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-			/* 5° Corso Seguito */
-			studente = userRepository.findByUsername("Chi123");
-			course = courseRepository.findById(2L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-			/* 6° Corso Seguito */
-			studente = userRepository.findByUsername("Chi123");
-			course = courseRepository.findById(3L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-			/* 7° Corso Seguito */
-			studente = userRepository.findByUsername("AleMa");
-			course = courseRepository.findById(1L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-			/* 7° Corso Seguito */
-			studente = userRepository.findByUsername("AleMa");
-			course = courseRepository.findById(3L).orElseThrow(() -> new RuntimeException("Course not found"));
-			// Aggiungiamo il corso alla lista dello studente
-			studente.addToCorsiSeguiti(course);
-			userRepository.save(studente);
-
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Crea un nuovo corso e lo aggiunge al repository dei corsi e alla lista dei corsi dell'insegnante proprietario
-	 */
-	@Transactional
-	public void creaNuovoCorso(String nome, String materia, double prezzo, Course.Difficolta difficolta, String icona,
-	                           String ownerId, List<File> risorse) throws IllegalArgumentException{
-		Optional<TeacherProfile> opOwner = tpRepository.findById(ownerId);
-		TeacherProfile owner;
-
-		if(opOwner.isPresent())
-			owner = opOwner.get();
-		else
-			throw new IllegalArgumentException("Teacher " + ownerId + " not found in creaNuovoCorso");
-		
-		Course newCourse = new Course(nome, materia, prezzo, difficolta, icona, owner, risorse);
-
-		courseRepository.save(newCourse);
-		owner.addCourse(newCourse);
-	}
-
-	/**
-	 * Rimuove il corso con l'id passato
-	 */
     @Transactional
     public void rimuoviCorso(Long idCorso, String ownerId) {
         Course corso = courseRepository.findById(idCorso)
@@ -163,95 +141,129 @@ public class CourseService {
             throw new IllegalStateException("OPERAZIONE NEGATA");
         }
 
-        // 2. Disiscrivo tutti gli user che seguono il corso
-        List<User> studentiIscritti = new ArrayList<>(corso.getStudentiIscritti());
-
-        for (User studente : studentiIscritti) {
-            // Rimuovi il corso dalla lista dello studente (lato attivo)
-            studente.getCorsiSeguiti().remove(corso);
-            
-            userRepository.save(studente); 
-        }
-        
-        // Puliamo anche la lista lato corso per coerenza (anche se è il lato passivo)
-        corso.getStudentiIscritti().clear();
-
-        // 3. Scollego il corso dal professore
+        // 2. RIMOZIONE PROFESSORE
         TeacherProfile teacher = corso.getOwner();
         if(teacher != null){
             teacher.getMieiCorsi().remove(corso);
         }
 
-        // 4. Cancellazione reale
         courseRepository.delete(corso);
     }
 
-	public List<Course> getFilteredCoursesByUsername(String nomeCorso, String owner,String materia, Course.Difficolta difficolta) {
-		nomeCorso = cleanParamString(nomeCorso);
+    public List<Course> getFilteredCoursesByUsername(String nomeCorso, String owner,String materia, Course.Difficolta difficolta) {
+        nomeCorso = cleanParamString(nomeCorso);
 
 		return courseRepository.searchCourses(nomeCorso, owner.toLowerCase(), materia, difficolta, null, null, null);
-	}
+    }
 
-	public List<Course> getCoursesByUsername(String username) {
-		return courseRepository.findByOwner_Username(username);
-	}
+    public List<Course> getCoursesByUsername(String username) {
+        return courseRepository.findByOwner_Username(username);
+    }
 
-	public List<Course> getFollowedCoursesByUsername(String studentUsername, String nomeCorso, String owner,String materia,
-	                                                 Course.Difficolta difficolta) {
-		nomeCorso = cleanParamString(nomeCorso);
-		owner = cleanParamString(owner);
+    public List<Course> getFollowedCoursesByUsername(String studentUsername, String nomeCorso, String owner, String materia, Course.Difficolta difficolta) {
+        
+        // 1. Recupero le iscrizioni dello studente
+        List<FollowedCourse> iscrizioni = followedCourseRepository.findByUser_Username(studentUsername);
 
-		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, null, null, studentUsername);
+        // 2. Estraggo i corsi dalle iscrizioni
+        List<Course> corsiSeguiti = iscrizioni.stream().map(FollowedCourse::getCorso).collect(Collectors.toList());
 
-	}
+        // 3. Applico i filtri in memoria
+        String finalNome = (nomeCorso != null) ? nomeCorso.toLowerCase() : null;
+        String finalOwner = (owner != null) ? owner.toLowerCase() : null;
+        String finalMateria = materia; 
 
-	public List<Course> getAllCourses(){return courseRepository.findAll();}
+        return corsiSeguiti.stream()
+                .filter(c -> finalNome == null || c.getNome().toLowerCase().contains(finalNome))
+                .filter(c -> finalOwner == null || c.getOwner().getUsername().toLowerCase().contains(finalOwner))
+                .filter(c -> finalMateria == null || c.getMateria().equalsIgnoreCase(finalMateria))
+                .filter(c -> difficolta == null || c.getDifficolta() == difficolta)
+                .collect(Collectors.toList());
+    }
 
-	public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta,
-	                                       Double prezzo, Short rating){
+	@Transactional
+    public List<Course> getAllCourses(){return courseRepository.findAll();}
 
-		nomeCorso = cleanParamString(nomeCorso);
-		owner = cleanParamString(owner);
+	@Transactional
+    public List<Course> getFilteredCourses(String nomeCorso, String owner, String materia, Course.Difficolta difficolta,
+                                           Double prezzo, Short rating){
 
-		return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo, rating, null);
-	}
+        nomeCorso = cleanParamString(nomeCorso);
+        owner = cleanParamString(owner);
 
-	/**
-	 * Pulisce la stringa passata come parametro dalla GET/POST per la query
-	 */
-	private String cleanParamString(String s){
-		// Se la stringa è presente, la rendiamo minuscola e aggiungiamo % per il pattern matching nella query
-		if (s != null && !s.isBlank()) {
-			s = "%" + s.toLowerCase() + "%";
-		} else {
-			s = null;   // Assicura che stringhe vuote diventino null
-		}
+        return courseRepository.searchCourses(nomeCorso, owner, materia, difficolta, prezzo, rating, null);
+    }
 
-		return s;
-	}
+    private String cleanParamString(String s){
+        if (s != null && !s.isBlank()) {
+            s = "%" + s.toLowerCase() + "%";
+        } else {
+            s = null;
+        }
+        return s;
+    }
 
-	public Set<String> getMaterie(){
-		List<Course> corsi = getAllCourses();
-		Set<String> materie = new HashSet<>();
+	@Transactional
+    public Set<String> getMaterie(){
+        List<Course> corsi = getAllCourses();
+        Set<String> materie = new HashSet<>();
 
-		for(Course c : corsi){
-			materie.add(c.getMateria());
-		}
+        for(Course c : corsi){
+            materie.add(c.getMateria());
+        }
+        return materie;
+    }
 
-		return materie;
-	}
+	@Transactional
+    public Double getMaxCosto(){
+        List<Course> corsi = courseRepository.findAll();
 
-	public Double getMaxCosto(){
-		List<Course> corsi = courseRepository.findAll();
+        double maxCosto = 0;
+        for(Course c : corsi){
+            double costo = c.getPrezzo();
+            if(costo > maxCosto){
+                maxCosto = costo;
+            }
+        }
+        return maxCosto;
+    }
 
-		double maxCosto = 0;
-		for(Course c : corsi){
-			double costo = c.getPrezzo();
-			if(costo > maxCosto){
-				maxCosto = costo;
-			}
-		}
+    @Transactional
+    public float getAverageReviews(Long id){
 
-		return maxCosto;
-	}
+        List<Recensione> recensioni = recensioniRepository.findByCorso_Id(id);
+        
+        int averageReviews = 0;
+        int count_reviews = 0;
+        for(Recensione recensione : recensioni){
+            averageReviews += recensione.getVoto();
+            count_reviews++;
+        }
+
+        return averageReviews / count_reviews;
+    }
+
+
+    @Transactional
+    public void aggiornaMediaRecensioni(Long corsoId, float nuovaMedia) {
+        Course corso = courseRepository.findById(corsoId)
+                .orElseThrow(() -> new RuntimeException("Corso non trovato"));
+
+        corso.setMediaRecensioni(nuovaMedia);
+
+        courseRepository.save(corso);
+    }
+
+
+    @Transactional
+    public void rimuoviIscrizione(String username, Long corsoId) {
+        if (!followedCourseRepository.existsByUser_UsernameAndCorso_Id(username, corsoId)) {
+            throw new IllegalStateException("Iscrizione non trovata");
+        }
+        followedCourseRepository.deleteByUser_UsernameAndCorso_Id(username, corsoId);
+    }
+
+	@Transactional
+	public List<FollowedCourse> getAllFollowedCourses(){return followedCourseRepository.findAll();}
+
 }

@@ -17,7 +17,8 @@ public class SecurityPathConfig {
 			"/corsi",
 			"/corsi/materie",
 			"/corsi/difficolta",
-			"/corsi/maxCosto"
+			"/corsi/maxCosto",
+			"/files"
 	);
 
 	private static final List<String> MODIFY_TEACHER_FIELDS_PATHS = List.of(

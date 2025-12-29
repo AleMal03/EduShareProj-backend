@@ -20,7 +20,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
             "(:materia IS NULL OR c.materia = :materia) AND " +
             "(:difficolta IS NULL OR c.difficolta = :difficolta) AND " + 
             "(:prezzo IS NULL OR c.prezzo <= :prezzo) AND " +
-            "(:rating IS NULL OR c.mediaRecensioni >= :rating) AND " + 
+            "(:rating IS NULL OR c.mediaRecensioni >= :rating OR c.mediaRecensioni = 0) AND " +
             "(:studentUsername IS NULL OR :studentUsername IN (SELECT fc.user.username FROM c.iscritti fc))")
             
     List<Course> searchCourses(

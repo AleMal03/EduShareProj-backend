@@ -50,7 +50,7 @@ public class Course {
 
     public Course() {}
 
-    public Course(String nome, String materia, double prezzo, Difficolta difficolta, String icona, TeacherProfile owner, float mediaRecensioni) {
+    public Course(String nome, String materia, double prezzo, Difficolta difficolta, String icona, TeacherProfile owner) {
         this.nome = nome;
         this.materia = materia;
         this.prezzo = prezzo;

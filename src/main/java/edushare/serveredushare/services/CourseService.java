@@ -90,6 +90,9 @@ public class CourseService {
     public void aggiungiRecensione(int voto, String descrizione, Long corsoId) {
         Course course = courseRepository.findById(corsoId).orElse(null);
 
+		if(course == null)
+			return;
+		
         Recensione recensione = new Recensione(voto, descrizione, course);
         recensioniRepository.save(recensione);
 
@@ -124,7 +127,11 @@ public class CourseService {
         else
             throw new IllegalArgumentException("Teacher " + ownerId + " not found in creaNuovoCorso");
         
-        Course newCourse = new Course(nome, materia, prezzo, difficolta, icona, owner, 0);
+        Course newCourse = new Course(nome, materia, prezzo, difficolta, icona, owner);
+
+		if(risorse != null)
+			risorse.forEach((risorsa) -> newCourse.addRisorsa(risorsa));
+
 
         courseRepository.save(newCourse);
         owner.addCourse(newCourse);
@@ -240,7 +247,7 @@ public class CourseService {
             count_reviews++;
         }
 
-        return averageReviews / count_reviews;
+        return (float) (averageReviews / count_reviews);
     }
 
 

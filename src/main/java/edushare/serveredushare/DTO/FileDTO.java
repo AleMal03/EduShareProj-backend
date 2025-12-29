@@ -1,13 +1,6 @@
 package edushare.serveredushare.DTO;
 
-import edushare.serveredushare.persistence.Course;
-import edushare.serveredushare.persistence.Course.Difficolta;
 import edushare.serveredushare.persistence.File;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 
 import java.io.Serializable;
 
@@ -17,7 +10,6 @@ public class FileDTO implements Serializable{
 	private String nome;
 	private String path;
 	private String icona;
-    private Long idCorso;
 
     public FileDTO(){}
 
@@ -26,7 +18,6 @@ public class FileDTO implements Serializable{
         this.nome = nome;
         this.path = path;
         this.icona = icona;
-        this.idCorso = idCorso;
     }
 
     // --- GETTER 
@@ -34,7 +25,6 @@ public class FileDTO implements Serializable{
     public String getNome(){ return nome; }
     public String getPath(){ return path; }
     public String getIcona(){ return icona; }
-    public Long getIdCorso(){ return idCorso; }
     
     // --- MAPPER STATICO ---
 	public static FileDTO mapFileToFileDTO(File file) {

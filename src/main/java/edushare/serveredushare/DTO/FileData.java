@@ -6,12 +6,12 @@ public class FileData {
     List<FileDTO> listaFiles;  // Lista file da inviare al frontend
 	String message;
 
-	public FileData(List<FileDTO> listaCorsi, String message) {
-		this.listaFiles = listaCorsi;
+	public FileData(List<FileDTO> listaFiles, String message) {
+		this.listaFiles = listaFiles;
 		this.message = message;
 	}
 
-	public List<FileDTO> getListaCorsi() {
+	public List<FileDTO> getListaFiles() {
 		return listaFiles;
 	}
 

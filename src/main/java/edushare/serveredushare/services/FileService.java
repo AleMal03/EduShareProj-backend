@@ -29,8 +29,30 @@ public class FileService {
 	@Order(3)
 	public void init(){
 		try {
-			creaNuovoFile("Lezione 1", "lezione1.mp4", null, 1L);
-			creaNuovoFile("Appunti 1", "appunti1.pdf", null, 1L);
+			// Video
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 1L);
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 2L);
+			creaNuovoFile("Lezione 2", "pathInesistente", "mp4_icon.png", 2L);
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 3L);
+			creaNuovoFile("Lezione 2", "pathInesistente", "mp4_icon.png", 3L);
+			creaNuovoFile("Lezione 3", "pathInesistente", "mp4_icon.png", 3L);
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 4L);
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 5L);
+			creaNuovoFile("Lezione 2", "pathInesistente", "mp4_icon.png", 5L);
+			creaNuovoFile("Lezione 1", "pathInesistente", "mp4_icon.png", 6L);
+
+			// Pdf
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 1L);
+			creaNuovoFile("Appunti 2", "pathInesistente", "pdf_icon.png", 1L);
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 2L);
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 3L);
+			creaNuovoFile("Appunti 2", "pathInesistente", "pdf_icon.png", 3L);
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 4L);
+			creaNuovoFile("Appunti 2", "pathInesistente", "pdf_icon.png", 4L);
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 6L);
+			creaNuovoFile("Appunti 2", "pathInesistente", "pdf_icon.png", 6L);
+			creaNuovoFile("Appunti 1", "pathInesistente", "pdf_icon.png", 7L);
+			creaNuovoFile("Appunti 2", "pathInesistente", "pdf_icon.png", 7L);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

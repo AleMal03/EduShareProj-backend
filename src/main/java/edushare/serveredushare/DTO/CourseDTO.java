@@ -12,12 +12,12 @@ public class CourseDTO implements Serializable {
 	private double prezzo;
 	private Difficolta difficolta;
 	private String icona;
-	private double mediaRecensioni;
+	private float mediaRecensioni;
 	private String owner;
 
 	public CourseDTO(){}
 
-	public CourseDTO(Long id, String nome, String materia, double prezzo, Difficolta difficolta, String icona, double mediaRecensioni, String owner){
+	public CourseDTO(Long id, String nome, String materia, double prezzo, Difficolta difficolta, String icona, float mediaRecensioni, String owner){
 		this.id = id;
 		this.nome = nome;
 		this.materia = materia;
@@ -35,7 +35,7 @@ public class CourseDTO implements Serializable {
 	public double getPrezzo() { return prezzo; }
 	public Difficolta getDifficolta() { return difficolta; }
 	public String getIcona() { return icona; }
-	public double getMediaRecensioni(){return mediaRecensioni;}
+	public float getMediaRecensioni(){return mediaRecensioni;}
 	public String getOwner() {return owner;}
 
 	// --- MAPPER STATICO ---

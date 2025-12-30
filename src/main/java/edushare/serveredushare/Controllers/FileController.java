@@ -27,7 +27,7 @@ public class FileController {
 	 */
 	// Esempio "http://localhost:5173/files?idCorso=1"
 	@GetMapping("")
-	public ResponseEntity<FileData> allCourses(HttpSession session, @RequestParam (required = true) Long idCorso){
+	public ResponseEntity<FileData> allFiles(HttpSession session, @RequestParam (required = true) Long idCorso){
 
 		List<File> listaFiles = fileService.getAllFilesByCourseId(idCorso);
 

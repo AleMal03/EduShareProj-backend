@@ -240,14 +240,16 @@ public class CourseService {
 
         List<Recensione> recensioni = recensioniRepository.findByCorso_Id(id);
         
-        int averageReviews = 0;
+        float averageReviews = 0;
         int count_reviews = 0;
         for(Recensione recensione : recensioni){
             averageReviews += recensione.getVoto();
             count_reviews++;
         }
 
-        return (float) (averageReviews / count_reviews);
+        float average =  averageReviews / count_reviews;
+        // Esempio: 4.56 -> 45.6 -> 46 -> 4.6
+        return (float) (Math.round(average * 10.0) / 10.0);
     }
 
 

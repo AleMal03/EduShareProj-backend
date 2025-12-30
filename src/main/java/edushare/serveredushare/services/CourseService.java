@@ -78,6 +78,30 @@ public class CourseService {
             aggiungiRecensione(2, null, 2L);
             aggiungiRecensione(2, null, 2L);
 
+            aggiungiRecensione(5, null, 3L);
+            aggiungiRecensione(4, "Prova", 3L);
+            aggiungiRecensione(5, "Buono", 3L);
+            aggiungiRecensione(5, "Funziona", 3L);
+            aggiungiRecensione(3, null, 3L);
+            aggiungiRecensione(4, null, 3L);
+
+            aggiungiRecensione(3, null, 4L);
+            aggiungiRecensione(1, null, 4L);
+            aggiungiRecensione(1, null, 4L);
+            aggiungiRecensione(2, null, 4L);
+            aggiungiRecensione(2, null, 4L);
+
+			aggiungiRecensione(5, null, 5L);
+            aggiungiRecensione(5, null, 5L);
+            aggiungiRecensione(4, null, 5L);
+
+			aggiungiRecensione(3, null, 6L);
+            aggiungiRecensione(3, null, 6L);
+            aggiungiRecensione(4, null, 6L);
+
+			aggiungiRecensione(5, null, 7L);
+            aggiungiRecensione(5, null, 7L);
+
 
 
         } catch (Exception e) {

@@ -126,8 +126,8 @@ public class CorsiController {
 
 		try {
 			courseService.creaNuovoCorso(
-					nuovoCorso.getNome(),
-					nuovoCorso.getMateria(),
+					nuovoCorso.getNome().trim().isEmpty() ? null : nuovoCorso.getNome().trim(),
+					nuovoCorso.getMateria().trim().isEmpty() ? null : nuovoCorso.getMateria().trim(),
 					nuovoCorso.getPrezzo(),
 					nuovoCorso.getDifficolta(),
 					nuovoCorso.getIcona(),

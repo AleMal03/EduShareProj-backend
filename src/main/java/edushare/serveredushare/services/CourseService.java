@@ -37,12 +37,24 @@ public class CourseService {
         try {
             // Creazione corsi 
             creaNuovoCorso("Tecnologie Web", "Informatica", 0, Course.Difficolta.FACILE, "TW.png", "Prof1", null);
-            creaNuovoCorso("Sistemi Operativi", "Informatica", 10, Course.Difficolta.MEDIA, "SO.png", "Prof1", null);
             creaNuovoCorso("DataBase", "Informatica", 0, Course.Difficolta.FACILE, "DB.png", "Prof1", null);
+            creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE, "MD.png", "Prof1", null);
+            creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIA, "Analisi.png", "Prof1", null);
+            creaNuovoCorso("Fisica Nucleare", "Fisica", 20, Course.Difficolta.FACILE, "Nucleare.png", "Prof1", null);
+            creaNuovoCorso("Elettrodinamica", "Fisica", 45, Course.Difficolta.DIFFICILE, "Elettrodinamica.png", "Prof1", null);
+            creaNuovoCorso("Magnetismo", "Fisica", 15, Course.Difficolta.MEDIA, "Magnetismo.png", "Prof1", null);
+
+
             creaNuovoCorso("Sistemi Operativi", "Informatica", 15, Course.Difficolta.DIFFICILE, "SO.png", "Chi123", null);
-            creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE, "default.png", "Chi123", null);
-            creaNuovoCorso("Analisi I", "Matematica", 35, Course.Difficolta.MEDIA, "default.png", "Chi123", null);
-            creaNuovoCorso("Matematica discreta", "Matematica", 20, Course.Difficolta.FACILE, "default.png", "Prof1", null);
+            creaNuovoCorso("Prog3", "Informatica", 0, Course.Difficolta.FACILE, "Prog3.png", "Chi123", null);
+            creaNuovoCorso("Caduta dell'Impero Romano", "Storia", 0, Course.Difficolta.DIFFICILE, "CIR.png", "Chi123", null);
+            creaNuovoCorso("Scoperta dell'America", "Storia", 10, Course.Difficolta.FACILE, "America.png", "Chi123", null);
+            creaNuovoCorso("WW1", "Storia", 35, Course.Difficolta.MEDIA, "ww1.png", "Chi123", null);
+            creaNuovoCorso("Esistenza", "Filosofia", 35, Course.Difficolta.DIFFICILE, "Esistenza.png", "Chi123", null);
+            creaNuovoCorso("Libero Arbitrio", "Filosofia", 35, Course.Difficolta.MEDIA, "LA.png", "Chi123", null);
+            creaNuovoCorso("Identità", "Filosofia", 35, Course.Difficolta.DIFFICILE, "Identita.png", "Chi123", null);
+
+
 
 
             // ISCRIZIONE DELLO STUDENTE 
@@ -51,15 +63,26 @@ public class CourseService {
             iscriviStudente("SimoStr", 1L);
             iscriviStudente("SimoStr", 4L);
             iscriviStudente("SimoStr", 5L);
+            iscriviStudente("SimoStr", 8L);
+            iscriviStudente("SimoStr", 9L);
+            iscriviStudente("SimoStr", 10L);
+            iscriviStudente("SimoStr", 13L);
+            iscriviStudente("SimoStr", 14L);
+            iscriviStudente("SimoStr", 15L);
 
             // Chi123 segue corso 1, 2, 3
             iscriviStudente("Chi123", 1L);
             iscriviStudente("Chi123", 2L);
             iscriviStudente("Chi123", 3L);
+            iscriviStudente("Chi123", 4L);
+            iscriviStudente("Chi123", 7L);
 
             // AleMa segue corso 1, 3
             iscriviStudente("AleMa", 1L);
             iscriviStudente("AleMa", 3L);
+            iscriviStudente("AleMa", 10L);
+            iscriviStudente("AleMa", 12L);
+            iscriviStudente("AleMa", 13L);
 
 
 
@@ -77,6 +100,52 @@ public class CourseService {
             aggiungiRecensione(1, null, 2L);
             aggiungiRecensione(2, null, 2L);
             aggiungiRecensione(2, null, 2L);
+
+            aggiungiRecensione(5, null, 3L);
+            aggiungiRecensione(4, "Prova", 3L);
+            aggiungiRecensione(5, "Buono", 3L);
+            aggiungiRecensione(5, "Funziona", 3L);
+            aggiungiRecensione(3, null, 3L);
+            aggiungiRecensione(4, null, 3L);
+
+            aggiungiRecensione(3, null, 4L);
+            aggiungiRecensione(1, null, 4L);
+            aggiungiRecensione(1, null, 4L);
+            aggiungiRecensione(2, null, 4L);
+            aggiungiRecensione(2, null, 4L);
+
+			aggiungiRecensione(5, null, 5L);
+            aggiungiRecensione(5, null, 5L);
+            aggiungiRecensione(4, null, 5L);
+
+			aggiungiRecensione(3, null, 6L);
+            aggiungiRecensione(3, null, 6L);
+            aggiungiRecensione(4, null, 6L);
+
+			aggiungiRecensione(5, null, 7L);
+            aggiungiRecensione(5, null, 7L);
+
+            aggiungiRecensione(1, null, 9L);
+            aggiungiRecensione(1, null, 9L);
+            aggiungiRecensione(1, null, 9L);
+            aggiungiRecensione(3, null, 9L);
+
+            aggiungiRecensione(5, null, 10L);
+            aggiungiRecensione(4, null, 10L);
+
+            aggiungiRecensione(5, null, 11L);
+
+            aggiungiRecensione(5, null, 14L);
+            aggiungiRecensione(5, null, 14L);
+            aggiungiRecensione(3, null, 14L);
+            aggiungiRecensione(4, null, 14L);
+            aggiungiRecensione(4, null, 14L);
+
+            aggiungiRecensione(3, null, 15L);
+            aggiungiRecensione(3, null, 15L);
+
+
+
 
 
 

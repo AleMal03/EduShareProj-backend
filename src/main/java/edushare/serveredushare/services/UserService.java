@@ -32,36 +32,70 @@ public class UserService {
         User newUser;
 
         /* User 1 (insegnante) */
-        newUser = new User("Prof1", "prof123", "Prof", "Essore",
-                "prof1@gmail.com", 45, "Italiana", Set.of("Italiano", "Tedesco", "Russo"),
-                Set.of(User.Role.TEACHER, User.Role.STUDENT), "Prof1.png", 230.00);
+        newUser = new User("Prof1", 
+                            "prof123", 
+                            "Prof", 
+                            "Essore",
+                            "prof1@gmail.com", 
+                            45, 
+                            "Italiana", 
+                            Set.of("Italiano", "Tedesco", "Russo"),
+                            Set.of(User.Role.TEACHER, User.Role.STUDENT), 
+                            "Prof1.png", 
+                            230.00);
 
-        addTeacherProfileToUser(newUser, "Sono un professore",
-                Set.of("Laurea triennale in professorologia", "Laurea magistrale in professorologia"));
+        addTeacherProfileToUser(newUser, 
+                            "Sono un professore",
+                            Set.of("Laurea triennale in professorologia", "Laurea magistrale in professorologia"));
 
         if(!userRepository.existsById(newUser.getUsername())) userRepository.save(newUser);
 
         /* User 2 (studente) */
-        newUser =new User("SimoStr", "ss123", "Simone", "Stridi",
-                "simostr@gmail.com", 25, "Italiana", Set.of("Italiano", "Inglese", "Francese"),
-                Set.of(User.Role.STUDENT), "SimoStr.png", 24.75);
+        newUser =new User("SimoStr", 
+                            "ss123", 
+                            "Simone", 
+                            "Stridi",
+                            "simostr@gmail.com", 
+                            25, 
+                            "Italiana", 
+                            Set.of("Italiano", "Inglese", "Francese"),
+                            Set.of(User.Role.STUDENT), 
+                            "default.png", 
+                            24.75);
 
         if(!userRepository.existsById(newUser.getUsername())) userRepository.save(newUser);
 
         /* User 3 (studente) */
-        newUser = new User("AleMa", "am123", "Alessandro", "Mallardi",
-                "alema@gmail.com", 22, "Italiana", Set.of("Italiano", "Inglese", "Spagnolo"),
-                Set.of(User.Role.STUDENT), "default.png", 12.00);
+        newUser = new User("AleMa", 
+                            "am123", 
+                            "Alessandro", 
+                            "Mallardi",
+                            "alema@gmail.com", 
+                            22, 
+                            "Italiana", 
+                            Set.of("Italiano", "Inglese", "Spagnolo"),
+                            Set.of(User.Role.STUDENT), 
+                            "default.png", 
+                            12.00);
 
         if(!userRepository.existsById(newUser.getUsername())) userRepository.save(newUser);
 
         /* User 4 (insegnante) */
-        newUser = new User("Chi123", "ch123", "Chiara", "Eli",
-                "xhiaeli@gmail.com", 18, "Italiana", Set.of("Italiano", "Inglese", "Spagnolo"),
-                Set.of(User.Role.STUDENT, User.Role.TEACHER), "default.png", 15.00);
+        newUser = new User("Chi123", 
+                            "ch123", 
+                            "Chiara", 
+                            "Eli",
+                            "xhiaeli@gmail.com", 
+                            18, 
+                            "Italiana", 
+                            Set.of("Italiano", "Inglese", "Spagnolo"),
+                            Set.of(User.Role.STUDENT, User.Role.TEACHER), 
+                            "Chi123.png", 
+                            15.00);
 
-        addTeacherProfileToUser(newUser, "Prof Chiara",
-                Set.of("Laurea triennale in niente"));
+        addTeacherProfileToUser(newUser, 
+                            "Prof Chiara",
+                            Set.of("Laurea triennale in niente"));
 
         if(!userRepository.existsById(newUser.getUsername())) userRepository.save(newUser);
     }

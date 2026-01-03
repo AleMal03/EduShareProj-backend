@@ -46,9 +46,10 @@ public class UserDTO implements Serializable {
     public String getNazionalita() { return nazionalita; }
     public Set<String> getLingueParlate() { return lingueParlate; }
     public Set<Role> getRuoli() { return ruoli; }
-    public TeacherProfileDTO getTeacherProfileDTO() { return teacherProfileDTO; }
     public double getCredito() { return credito; }
     public String getFotoProfilo() {return fotoProfilo;}
+	public String getAboutMe(){return teacherProfileDTO != null ? teacherProfileDTO.getAboutMe() : null;}
+	public Set<String> getTitoliStudio(){return teacherProfileDTO != null ? teacherProfileDTO.getTitoliStudio() : null;}
 
     // --- MAPPER STATICO ---
     public static UserDTO mapUserToUserDTO(User user){

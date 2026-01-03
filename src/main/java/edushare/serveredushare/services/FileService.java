@@ -29,8 +29,8 @@ public class FileService {
 	@Order(3)
 	public void init(){
 		try {
-			creaNuovoFile("Lezione 1", "lezione1.mp4", null, 1L);
-			creaNuovoFile("Appunti 1", "appunti1.pdf", null, 1L);
+			creaNuovoFile("Lezione 1", "path", "mp4_icon.png", 1L);
+			creaNuovoFile("Appunti 1", "path", "pdf_icon.png", 1L);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

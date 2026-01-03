@@ -10,4 +10,6 @@ public interface RecensioneRepository extends JpaRepository<Recensione, Long> {
 
     public List<Recensione> findByCorso_Id(Long corsoId);
 
+
+    public void deleteByCorso_Id(Long corsoId);
 }

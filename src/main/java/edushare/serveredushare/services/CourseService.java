@@ -217,7 +217,10 @@ public class CourseService {
             throw new IllegalStateException("OPERAZIONE NEGATA");
         }
 
-        // 2. RIMOZIONE PROFESSORE
+        // 2. CANCELLA LE RECENSIONI DEL CORSO
+        recensioniRepository.deleteByCorso_Id(corso.getId());
+
+        // 3. RIMOZIONE PROFESSORE
         TeacherProfile teacher = corso.getOwner();
         if(teacher != null){
             teacher.getMieiCorsi().remove(corso);
